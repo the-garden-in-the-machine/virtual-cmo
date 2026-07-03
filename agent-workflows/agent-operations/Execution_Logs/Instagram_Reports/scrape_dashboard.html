@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergentic Scraper Dashboard - Run 1</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #111827;
+      --bg-card-hover: #1f2937;
+      --border-color: #374151;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --sky: #0ea5e9;
+      --sky-glow: rgba(14, 165, 233, 0.15);
+      --violet: #8b5cf6;
+      --violet-glow: rgba(139, 92, 246, 0.15);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.15);
+      --rose: #f43f5e;
+      --rose-glow: rgba(244, 63, 94, 0.15);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 2rem 1.5rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header Styling */
+    header {
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, var(--sky) 0%, var(--violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    .meta-tag {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      background: var(--violet-glow);
+      color: var(--violet);
+      font-weight: 600;
+      font-size: 0.75rem;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      margin-top: 0.5rem;
+    }
+
+    /* Metric Cards Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .metric-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .metric-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4rem;
+      height: 4rem;
+      border-radius: 0 0 0 100%;
+      opacity: 0.8;
+      filter: blur(10px);
+    }
+
+    .card-sky::after { background: var(--sky-glow); }
+    .card-violet::after { background: var(--violet-glow); }
+    .card-emerald::after { background: var(--emerald-glow); }
+    .card-rose::after { background: var(--rose-glow); }
+
+    .card-sky:hover { border-color: var(--sky); }
+    .card-violet:hover { border-color: var(--violet); }
+    .card-emerald:hover { border-color: var(--emerald); }
+    .card-rose:hover { border-color: var(--rose); }
+
+    .metric-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.1;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Tabs Styling */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.35rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background-color: var(--violet);
+      color: var(--text-main);
+      box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+    }
+
+    /* Filter & Search Controls */
+    .filter-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-grow: 1;
+      justify-content: flex-end;
+      max-width: 600px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex-grow: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      transition: var(--transition);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--sky);
+      box-shadow: 0 0 0 2px var(--sky-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .select-input {
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 0.6rem 1.5rem 0.6rem 1rem;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .select-input:focus {
+      border-color: var(--sky);
+    }
+
+    /* Table Styling */
+    .table-container {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.875rem;
+    }
+
+    tbody tr {
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    tbody tr:hover {
+      background-color: var(--bg-card-hover);
+    }
+
+    .post-row.expanded {
+      background-color: rgba(255, 255, 255, 0.015);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .badge-fuser {
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--sky);
+      border-color: rgba(14, 165, 233, 0.2);
+    }
+
+    .badge-mlf {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--violet);
+      border-color: rgba(139, 92, 246, 0.2);
+    }
+
+    .media-pill {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 0.375rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-right: 0.25rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .comments-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--emerald);
+      font-weight: 700;
+      font-size: 0.75rem;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .comments-zero {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .caption-preview {
+      max-width: 450px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-muted);
+    }
+
+    .arrow-icon {
+      transition: transform 0.3s ease;
+      color: var(--text-muted);
+    }
+
+    .expanded .arrow-icon {
+      transform: rotate(180deg);
+      color: var(--violet);
+    }
+
+    /* Expandable Detail Panel */
+    .detail-row {
+      background-color: rgba(0, 0, 0, 0.25);
+    }
+
+    .detail-row td {
+      padding: 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-container {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .expanded + .detail-row .detail-container {
+      max-height: 800px;
+    }
+
+    .detail-content {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .detail-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .detail-left {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .detail-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.5rem;
+    }
+
+    .caption-block {
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      font-size: 0.9375rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #e5e7eb;
+    }
+
+    .comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .comment-item {
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 0.5rem;
+      padding: 0.875rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .comment-user {
+      font-weight: 700;
+      color: var(--sky);
+      margin-bottom: 0.25rem;
+      display: inline-block;
+    }
+
+    .comment-text {
+      color: #d1d5db;
+      word-break: break-word;
+    }
+
+    .comment-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 1rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.01);
+      border-radius: 0.5rem;
+      border: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+
+    .detail-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screenshot-frame {
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      max-width: 480px;
+      width: 100%;
+      background: #000;
+      aspect-ratio: 16/10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screenshot-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .screenshot-frame:hover .screenshot-img {
+      transform: scale(1.03);
+    }
+
+    /* Scrollbar customization */
+    .comments-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .comments-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .comments-list::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 9999px;
+    }
+
+    .comments-list::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Action button */
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--sky);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      font-size: 0.8125rem;
+    }
+
+    .btn-link:hover {
+      color: var(--text-main);
+      transform: translateX(2px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Dashboard Header -->
+    <header>
+      <div class="header-content">
+        <div>
+          <h1>Emergentic Audience Engagement</h1>
+          <div class="meta-tag">Run 1 Scrape Infrastructure</div>
+        </div>
+        <div class="header-meta">
+          <div>Scraped Range: <strong>May 8 – June 8, 2026</strong></div>
+          <div style="margin-top: 0.25rem;">Status: <span style="color: var(--emerald); font-weight: 700;">● Completed</span></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Metrics Cards Grid -->
+    <section class="metrics-grid">
+      
+      <div class="metric-card card-sky">
+        <div class="metric-title">Target Accounts</div>
+        <div class="metric-value">02</div>
+        <div class="metric-desc">@fuserstudio &amp; @marshmallowlaserfeast</div>
+      </div>
+
+      <div class="metric-card card-violet">
+        <div class="metric-title">Total Posts Mapped</div>
+        <div class="metric-value" id="tot-posts">18</div>
+        <div class="metric-desc">Successful timeline audits</div>
+      </div>
+
+      <div class="metric-card card-emerald">
+        <div class="metric-title">Captured Assets</div>
+        <div class="metric-value">59</div>
+        <div class="metric-desc">41 Images &bull; 18 Videos &bull; 18 Screenshots</div>
+      </div>
+
+      <div class="metric-card card-rose">
+        <div class="metric-title">Comments Harvested</div>
+        <div class="metric-value" id="tot-comments">53</div>
+        <div class="metric-desc">Cleaned user engagement interactions</div>
+      </div>
+
+    </section>
+
+    <!-- Controls Panel -->
+    <section class="controls-panel">
+      
+      <!-- Account Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('all')">All Accounts</button>
+        <button class="tab-btn" onclick="switchTab('fuser')">@fuserstudio</button>
+        <button class="tab-btn" onclick="switchTab('mlf')">@marshmallowlaserfeast</button>
+      </div>
+
+      <!-- Filters Group -->
+      <div class="filter-group">
+        
+        <!-- Search bar -->
+        <div class="search-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input type="text" class="search-input" id="search-box" placeholder="Search caption or comments..." oninput="filterData()">
+        </div>
+
+        <!-- Media filter -->
+        <select class="select-input" id="media-filter" onchange="filterData()">
+          <option value="all">All Media</option>
+          <option value="images">Contains Images</option>
+          <option value="videos">Contains Videos</option>
+        </select>
+
+      </div>
+
+    </section>
+
+    <!-- Scraped Data Table -->
+    <section class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 140px;">Date</th>
+            <th style="width: 180px;">Account</th>
+            <th style="width: 150px;">Media Count</th>
+            <th style="width: 100px; text-align: center;">Comments</th>
+            <th>Caption Preview</th>
+            <th style="width: 80px; text-align: center;">Details</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <!-- Rendered dynamically -->
+        </tbody>
+      </table>
+      <div id="no-results" class="empty-state" style="display: none;">
+        <h3>No records match your criteria</h3>
+        <p>Try adjusting your search query or filters.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Scraped data array embedded directly
+    const scrapeData = [
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-06-05",
+        code: "DZN6nbkEq5g",
+        link: "https://www.instagram.com/p/DZN6nbkEq5g/",
+        images: 8,
+        videos: 0,
+        caption: "CASE STUDY 011 | Deep sea as dessert. Coral, sponge, and shell confectionaries rendered in matcha, castella, and mochi. Traditional forms and a flavors pushed somewhere a little stranger. Made in Fuser.",
+        comments: [
+          { user: "@echo_is_not_here", text: "interesting" },
+          { user: "@dear_artist_hyuan", text: "这是什么 看上去不是很美味" },
+          { user: "@eileenonline_", text: "🍥🎂🫧🥮🍰🍡" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-06-04",
+        code: "DZJWLBnxjFX",
+        link: "https://www.instagram.com/p/DZJWLBnxjFX/",
+        images: 0,
+        videos: 1,
+        caption: "Any font you want—now in Fuser. Upload, edit, layer and scale. Speak your own visual language with fonts from @velvetyne_type_foundry, @abcdinamo and many, many more.Try it at fuser.studio",
+        comments: [
+          { user: "@brockdavesstudio", text: "Track ID?" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-06-02",
+        code: "DZGeBjcAQPV",
+        link: "https://www.instagram.com/p/DZGeBjcAQPV/",
+        images: 2,
+        videos: 0,
+        caption: "socialsoftware_ and",
+        comments: [
+          { user: "@socialsoftware_", text: "Scores for Social SoftwarePerformances and Closing Event!Saturday, June 13th 12–2pm@ Fuser, 1811 Blake Ave, Los AngelesLight bites provided. Celebrate the closing of Social Software Cycle 2 with us. We invite you to join us for final performances and presentations by the cohort members. RSVP at the link in bio. Over the last ten weeks, SoSoft cohort members have developed projects that reinterpret “scores for social software.” Jordan Silver — Sonic Architecture, Em Lugo — Ambling Los Angeles, Æther Cavendish — Vigil Score, Thomas Noya — Biophonía, Mavyn Vu — the radio is an altar : portal, Alex Espinosa — Music for World Computers, Jeffrey Alan Scudder — Aesthetic.Computer, Darlyn Phan — Meridians, Chelly Jin — Software as a Choreography, Banyi Huang — Conjuring Notness" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-27",
+        code: "DY2xlOzHbhJ",
+        link: "https://www.instagram.com/p/DY2xlOzHbhJ/",
+        images: 0,
+        videos: 2,
+        caption: "Testing Shapes and Patterns with Recraft V4 Text-to-Vector generation.Did you know you can use SVGS in the Compositor Node? Fully editable vectors can be connected, layered, grouped, and scaled. Try it at fuser.studio",
+        comments: [
+          { user: "@dalenaxtran", text: "Give us the prompt!!! 🔥" },
+          { user: "@vaggeliscrewns", text: "Cleannnnnnnn 🔥" },
+          { user: "@laure_michelon", text: "Ooooo vectors" },
+          { user: "@l.bedal", text: "😍😍" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-26",
+        code: "DY0I_NqPYtj",
+        link: "https://www.instagram.com/p/DY0I_NqPYtj/",
+        images: 0,
+        videos: 1,
+        caption: "Collaboration comes in many different forms. 🐏Introducing the Fuser Community Partner Program—built for creatives who move between disciplines, bring people into conversation, and share their process as naturally as they share their work.Learn more and apply at fuser.studio/partners.",
+        comments: [
+          { user: "@rojicomplex", text: "Like" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-22",
+        code: "DYpFAwzkfXC",
+        link: "https://www.instagram.com/p/DYpFAwzkfXC/",
+        images: 10,
+        videos: 3,
+        caption: "A brief recap of @rhizomedotorg’s7x7 at @newmuseum last weekend in NY. We commissioned new work from @zarinaaaaaaaaaaaaaaaaaaaaaa and @daemonlovers, made in Fuser, to be featured throughout the conference.Swipe to the end to see their workflows 👀 →",
+        comments: []
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-21",
+        code: "DYnYr-KyFZ1",
+        link: "https://www.instagram.com/p/DYnYr-KyFZ1/",
+        images: 0,
+        videos: 1,
+        caption: "New in Fuser 🐎Split Layers: Separate single image layers into editable cutouts. Each one can be moved, masked, transformed, or split further.Group layers: move, transform, and control multiple layers at once — each one still editable on its own.Try it now at fuser.studio",
+        comments: [
+          { user: "@seannana", text: "Oo, could see this working well with asset sheets too. Will try this out!" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-20",
+        code: "DYkcjIwEWO8",
+        link: "https://www.instagram.com/p/DYkcjIwEWO8/",
+        images: 1,
+        videos: 2,
+        caption: "Don’t just search for the perfect texture — create it. Generate seamless textures from any image, directly in Fuser.fuser.studio",
+        comments: [
+          { user: "@jon__warner", text: "One of my favorite uses of fuser! Hi-res render quality textures in minutes." }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-19",
+        code: "DYh6hcipZCf",
+        link: "https://www.instagram.com/p/DYh6hcipZCf/",
+        images: 0,
+        videos: 1,
+        caption: "New in Fuser: Right click any video to save specific frames. Use them to extend a clip, create a loop, or screen grab the moment you want.Try it now at fuser.studio",
+        comments: []
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-18",
+        code: "DYfStMpuEMu",
+        link: "https://www.instagram.com/p/DYfStMpuEMu/",
+        images: 1,
+        videos: 0,
+        caption: "newincVerified and",
+        comments: [
+          { user: "@newinc", text: "Design and print your own keychain with Fuser (@fuserstudio) at DEMO2026 Power Lunch: Prompt to Pocket. This hands-on workshop walks you through Fuser, an AI-generated 3D design tool. Join workshop lead Jillian Leedy (@jillianleedy) to prompt, iterate and prep a custom object. Designs will be printed in NEW INC’s fabrication lab. Leave with a custom designed keychain in your pocket. No design experience, coding, or CAD skills required. Get a single-day ticket for June 3 or a Festival Pass to participate in this workshop. Sign up is required with limited capacity. Visit demofestival.org to learn more." },
+          { user: "@laure_michelon", text: "So excited @jillianleedy is teaching this" },
+          { user: "@catinwool", text: "This is so cool!!" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-18",
+        code: "DYfh4VRHbNS",
+        link: "https://www.instagram.com/p/DYfh4VRHbNS/",
+        images: 1,
+        videos: 2,
+        caption: "Sketch to film grain in a few nodes. Drop in your image, run it through the film filter built with the Creative Code node, and generate video. Swap between looks or write your own from scratch - test it out with our Film Filter Template!",
+        comments: [
+          { user: "@hiradsab", text: "eat meat" },
+          { user: "@illummisee", text: "Bruh not Gemini ai" }
+        ]
+      },
+      {
+        account: "fuser",
+        accountLabel: "@fuserstudio",
+        badgeClass: "badge-fuser",
+        date: "2026-05-12",
+        code: "DYQacz9PwzL",
+        link: "https://www.instagram.com/p/DYQacz9PwzL/",
+        images: 0,
+        videos: 1,
+        caption: "Nano Banana 2 is unhinged... 🏁🏁🏁We’re going unlimited with Nano Banana 2 for the next 500 users that join *any* monthly plan in Fuser. Choose your adventure with Indie, Professional and Teams plans—starting at $5.Make anything and everything you want through month of May. 😎",
+        comments: []
+      },
+      {
+        account: "mlf",
+        accountLabel: "@marshmallowlaserfeast",
+        badgeClass: "badge-mlf",
+        date: "2026-06-08",
+        code: "DZVaqzQDFww",
+        link: "https://www.instagram.com/p/DZVaqzQDFww/",
+        images: 4,
+        videos: 0,
+        caption: "🌊 On World Oceans Day, we’re reflecting on the remarkable journey of 𝘚𝘦𝘦𝘪𝘯𝘨 𝘌𝘤𝘩𝘰𝘦𝘴 𝘪𝘯 𝘵𝘩𝘦 𝘔𝘪𝘯𝘥 𝘰𝘧 𝘵𝘩𝘦 𝘞𝘩𝘢𝘭𝘦. What began as an attempt to imagine the world through cetacean senses is now resonating across four continents. Today marks the closing of the work’s presentation at the Venice Biennale, while new encounters continue to unfold around the globe, include at Artscience museum Singapore where it just opened for new audiences. Fittingly, every home this work has found sits beside a body of water. From Barcelona’s Mediterranean shoreline, to Montréal where the St. Lawrence meets the Atlantic, and Singapore’s harbour edge. In Venice, inside a former 15th-century convent on the island of Giudecca, where the New York Times described visitors finding themselves figuratively plunging underwater, the Venetian lagoon itself part of the soundscape. Created in collaboration with filmmaker Tom Mustill, the work is an invitation to slip beyond the limits of our own perception and into the sensory worlds of whales. It emerged through the generosity of bioacousticians, marine biologists, researchers, filmmakers, and ocean advocates who helped us glimpse how these extraordinary beings might experience the world. At a time when the oceans face unprecedented pressures, we remain grateful for every opportunity to create encounters that inspire wonder, and kinship with beings we are just beginning to understand. More tides ahead. 🌊 Seeing Echoes in the Mind of the Whale was commissioned by Fundación Telefónica and DHub Barcelona, and first presented as part of Echoes of the Ocean, curated by @jldevicente and Maria Brancós Barti.",
+        comments: []
+      },
+      {
+        account: "mlf",
+        accountLabel: "@marshmallowlaserfeast",
+        badgeClass: "badge-mlf",
+        date: "2026-06-07",
+        code: "DZRaTk7k27T",
+        link: "https://www.instagram.com/p/DZRaTk7k27T/",
+        images: 4,
+        videos: 0,
+        caption: "Seeing Echoes in the Mind of the Whale is open to public today! We are thrilled to be part of Into the Ocean: Journey Beneath at the ArtScience Museum of Singapore. @artsciencemuseumsg We are grateful for Honor Harger’s @honorharger guiding light and invitation, as well as ASM museum’s dedicated team’s huge efforts to create a wonderful show. Seeing Echoes In the Mind of the Whale was created in collaboration with Tom Mustill @tommustill and with the support of the UPC Bioacoustic Applications Laboratory. Conceived in dialogue with Jose Luis De Vincente @jldevicente of Fast. Conceived as part of the Into the Ocean: Journey Beneath exhibition at Singapore Marina Bay Sands.",
+        comments: [
+          { user: "@honorharger", text: "So happy to have you in Singapore for a few days." },
+          { user: "@paulluckraft", text: "Huge congratulations from all at @gazelliarthouse ! 💚🌊" },
+          { user: "@hxzmi", text: "Any chance to bring it to malaysia too?" }
+        ]
+      },
+      {
+        account: "mlf",
+        accountLabel: "@marshmallowlaserfeast",
+        badgeClass: "badge-mlf",
+        date: "2026-06-05",
+        code: "DZMhN-cOrcF",
+        link: "https://www.instagram.com/p/DZMhN-cOrcF/",
+        images: 0,
+        videos: 1,
+        caption: "As Above, So Below Collateral Event of Venice Biennale Giudecca, Venice closing days.",
+        comments: [
+          { user: "@zeitgeist19", text: "A glimpse into Seeing Echoes in the Mind of the Whale by @marshmallowlaserfeast Last days to experience AS ABOVE, SO BELOWCollateral Event of @labiennale Organized by @oneoceanfound Ideated and conceived by @ZEITGEIST19Curated by @ElizabethZhivkova & @FarahPiriyeCoeneFabbrica H3, Ex Church Santi Cosma e DamianoGiudecca, Venice @serendpt_venezia Credit: Ersin Han ErsinDocumented by @hereisj.a" },
+          { user: "@farahpiriyecoene", text: "Thank you @marshmallowlaserfeast @ersinhanersin for this immersive meditation 💙" },
+          { user: "@farukminanmis", text: "Wow! 🔥" },
+          { user: "@chrislevine", text: "🔥" }
+        ]
+      },
+      {
+        account: "mlf",
+        accountLabel: "@marshmallowlaserfeast",
+        badgeClass: "badge-mlf",
+        date: "2026-05-14",
+        code: "DYT1czHE7wO",
+        link: "https://www.instagram.com/p/DYT1czHE7wO/",
+        images: 5,
+        videos: 3,
+        caption: "ArtScience Museum",
+        comments: [
+          { user: "@artsciencemuseumsg", text: "and marshmallowlaserfeast" },
+          { user: "@artsciencemuseumsg", text: "We welcome @marshmallowlaserfeast as our latest ArtScientists-in-Residence, marking a new chapter in our ongoing exploration of the hidden systems that shape the natural world. Their practice translates abstract systems into embodied, sensory experiences, inviting deeper reflection on the unseen ecosystems. The collective will present a trilogy of major works, marking their most extensive engagement in Asia. Join us for the residency-focused symposium, where Director @ersinhanersin will share deeper insights into their work. Symposium tickets are available via our link in bio." },
+          { user: "@batwob", text: "Totally stunning. Inspiring. Thank you." },
+          { user: "@ofatomsandlines", text: "Amazing! 🔥❤️" },
+          { user: "@ersinhanersin", text: "Looking forward to this partnership!" }
+        ]
+      },
+      {
+        account: "mlf",
+        accountLabel: "@marshmallowlaserfeast",
+        badgeClass: "badge-mlf",
+        date: "2026-05-12",
+        code: "DYO8bZzs_DG",
+        link: "https://www.instagram.com/p/DYO8bZzs_DG/",
+        images: 1,
+        videos: 0,
+        caption: "Fabbrica H3",
+        comments: [
+          { user: "@zeitgeist19", text: "Fabbrica H3" },
+          { user: "@zeitgeist19", text: "AS ABOVE, SO BELOW Collateral Event of @labiennale Now on view until June 8 ✨ Presenting Seeing Echoes in the Mind of the Whale (2024–2025) by Marshmallow Laser Feast — an immersive audiovisual installation exploring the sensory world of cetaceans through sound, perception, and deep listening. Following the journeys of a bottlenose dolphin, a humpback whale, and a sperm whale, the work invites audiences to encounter the ocean through the senses of these extraordinary beings — navigating through vibration, resonance, memory, and song. Developed in collaboration with filmmaker Tom Mustill and the UPC Bioacoustic Applications Laboratory, the installation bridges scientific research and artistic expression, creating a profound meditation on our relationship with the living ocean." },
+          { user: "@resour.integralprojects", text: "👏" }
+        ]
+      },
+      {
+        account: "mlf",
+        accountLabel: "@marshmallowlaserfeast",
+        badgeClass: "badge-mlf",
+        date: "2026-05-08",
+        code: "DYFRi7yAjx6",
+        link: "https://www.instagram.com/p/DYFRi7yAjx6/",
+        images: 4,
+        videos: 0,
+        caption: "gazelliarthouse and",
+        comments: [
+          { user: "@gazelliarthouse", text: "and marshmallowlaserfeast" },
+          { user: "@gazelliarthouse", text: "Artwork of the Week 🐋 Marshmallow Laser Feast’s Seeing Echoes in the Mind of the Whale extends human perception into the extraordinary sonic realm of cetaceans, inviting audiences to experience the ocean through sound, vibration, and deep listening. Currently on view in Venice as part of As Above, So Below, Official Collateral Event of the 61st International Art Exhibition – La Biennale di Venezia." },
+          { user: "@msmuse_", text: "Incredible work!!" },
+          { user: "@ofatomsandlines", text: "Amazing!!! I would drive all the way to Venice Biennale just for this piece! ♥️🔥" },
+          { user: "@art_music_lab_", text: "@farahpiriyecoene congratulation🔥👏" }
+        ]
+      }
+    ];
+
+    let currentTab = "all";
+
+    // Toggle row expansion
+    const toggleExpand = (row, index) => {
+      const isExpanded = row.classList.contains('expanded');
+      
+      // Close any already open rows
+      document.querySelectorAll('.post-row').forEach(r => r.classList.remove('expanded'));
+      document.querySelectorAll('.detail-container').forEach(c => c.style.maxHeight = '0');
+
+      if (!isExpanded) {
+        row.classList.add('expanded');
+        const detailContainer = document.getElementById(`detail-${index}`);
+        if (detailContainer) {
+          detailContainer.style.maxHeight = detailContainer.scrollHeight + 'px';
+        }
+      }
+    };
+
+    // Render Table Rows dynamically
+    const renderTable = (data) => {
+      const tbody = document.getElementById('table-body');
+      const noResults = document.getElementById('no-results');
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        noResults.style.display = 'block';
+        return;
+      } else {
+        noResults.style.display = 'none';
+      }
+
+      data.forEach((post, index) => {
+        // Create table row
+        const row = document.createElement('tr');
+        row.className = 'post-row';
+        row.onclick = () => toggleExpand(row, index);
+
+        // Media pill badges
+        let mediaHtml = '';
+        if (post.images > 0) {
+          mediaHtml += `<span class="media-pill">📷 ${post.images} Img</span>`;
+        }
+        if (post.videos > 0) {
+          mediaHtml += `<span class="media-pill">🎥 ${post.videos} Vid</span>`;
+        }
+
+        // Comment count badge class
+        const hasComments = post.comments.length > 0;
+        const commentClass = hasComments ? 'comments-indicator' : 'comments-indicator comments-zero';
+
+        row.innerHTML = `
+          <td style="font-weight: 600; color: var(--text-main);">${post.date}</td>
+          <td><span class="badge ${post.badgeClass}">${post.accountLabel}</span></td>
+          <td>${mediaHtml}</td>
+          <td style="text-align: center;"><span class="${commentClass}">${post.comments.length}</span></td>
+          <td><div class="caption-preview">${post.caption}</div></td>
+          <td style="text-align: center;">
+            <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </td>
+        `;
+
+        // Create detail expandable row
+        const detailRow = document.createElement('tr');
+        detailRow.className = 'detail-row';
+        
+        // Comments block
+        let commentsHtml = '<div class="comments-list">';
+        if (post.comments.length === 0) {
+          commentsHtml += `<div class="comment-empty">No comments captured on this post feed.</div>`;
+        } else {
+          post.comments.forEach(c => {
+            commentsHtml += `
+              <div class="comment-item">
+                <span class="comment-user">${c.user}</span>
+                <div class="comment-text">${c.text}</div>
+              </div>
+            `;
+          });
+        }
+        commentsHtml += '</div>';
+
+        // Screenshot relative path
+        const screenshotPath = `../Instagram_Screenshots/post_${post.code}.png`;
+
+        detailRow.innerHTML = `
+          <td colspan="6">
+            <div class="detail-container" id="detail-${index}">
+              <div class="detail-content">
+                <div class="detail-left">
+                  <div>
+                    <div class="detail-title">Full Scraped Caption</div>
+                    <div class="caption-block">${post.caption}</div>
+                  </div>
+                  <div>
+                    <div class="detail-title">Comments &amp; Engagement</div>
+                    ${commentsHtml}
+                  </div>
+                </div>
+                <div class="detail-right">
+                  <div class="detail-title">Post Visual Screenshot</div>
+                  <div class="screenshot-frame">
+                    <img class="screenshot-img" src="${screenshotPath}" alt="Instagram Post Screenshot" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%27http://www.w3.org/2000/svg%27 width=%27480%27 height=%27300%27 style=%27background:%23111;%27><text x=%2750%25%27 y=%2750%25%27 font-family=%27sans-serif%27 font-size=%2714%27 fill=%27%23444%27 text-anchor=%27middle%27 alignment-baseline=%27middle%27>Screenshot post_${post.code}.png</text></svg>'">
+                  </div>
+                  <div style="text-align: right; width: 100%; max-width: 480px; margin-top: 0.5rem;">
+                    <a href="${post.link}" target="_blank" class="btn-link">
+                      View Original on Instagram 
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(row);
+        tbody.appendChild(detailRow);
+      });
+    };
+
+    // Filter Data based on controls
+    const filterData = () => {
+      const searchQuery = document.getElementById('search-box').value.toLowerCase();
+      const mediaFilter = document.getElementById('media-filter').value;
+
+      const filtered = scrapeData.filter(post => {
+        // Tab check
+        if (currentTab !== 'all' && post.account !== currentTab) {
+          return false;
+        }
+
+        // Media Filter check
+        if (mediaFilter === 'images' && post.images === 0) return false;
+        if (mediaFilter === 'videos' && post.videos === 0) return false;
+
+        // Search check (caption or comments text)
+        if (searchQuery) {
+          const inCaption = post.caption.toLowerCase().includes(searchQuery);
+          const inComments = post.comments.some(c => 
+            c.user.toLowerCase().includes(searchQuery) || 
+            c.text.toLowerCase().includes(searchQuery)
+          );
+          return inCaption || inComments;
+        }
+
+        return true;
+      });
+
+      // Update counters
+      document.getElementById('tot-posts').innerText = filtered.length;
+      const totalComments = filtered.reduce((acc, curr) => acc + curr.comments.length, 0);
+      document.getElementById('tot-comments').innerText = totalComments;
+
+      renderTable(filtered);
+    };
+
+    // Switch between Account Tabs
+    const switchTab = (tab) => {
+      currentTab = tab;
+      
+      // Update active button classes
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText.toLowerCase().includes(tab) || (tab === 'all' && btn.innerText.includes('All'))) {
+          btn.classList.add('active');
+        }
+      });
+
+      filterData();
+    };
+
+    // Initial render
+    window.onload = () => {
+      renderTable(scrapeData);
+    };
+  </script>
+</body>
+</html>

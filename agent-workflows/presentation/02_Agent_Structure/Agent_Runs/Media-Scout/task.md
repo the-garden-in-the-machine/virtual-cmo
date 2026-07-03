@@ -1,0 +1,9 @@
+- [x] Create `save-instagram-session.js` in Playwright directory
+- [x] Create `scrape-instagram.js` in Playwright directory
+- [x] Verify `save-instagram-session.js` works by launching headed login
+- [x] Verify `scrape-instagram.js` successfully scrapes test accounts
+- [x] Provide instructions for n8n workflow integration
+- [x] Map and document fuserstudio posts from the past month (using human-like clicking protocol)
+  - [x] Write `scrape-fuser-detail.js` to click through the posts
+  - [x] Run the script and download images/details
+  - [x] Save the documented posts to `fuser_posts_month.md`

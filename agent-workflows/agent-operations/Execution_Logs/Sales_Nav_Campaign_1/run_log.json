@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "timestamp": "2026-06-11T05:02:22.923Z",
+  "dryRun": true,
+  "totalTimeElapsedSeconds": 0,
+  "totalProspectsCollected": 6,
+  "companies": [
+    "Pentagram",
+    "Order",
+    "Porto Rocha"
+  ],
+  "errors": []
+}

@@ -1,0 +1,5 @@
+- `[x]` Audit `sales_nav_adapter.js` and `orchestrator.js` in `Agent_Operations/Pipelines/Outreach/`
+- `[x]` Create and write audit log to `Agent_Operations/Execution_Logs/outreach_automation_audit.md`
+- `[x]` Refactor `sales_nav_adapter.js` (modular exports + Hermes CLI alignment)
+- `[x]` Refactor `orchestrator.js` (direct modules import + clean JSON stdout output)
+- `[x]` Validate refactored execution via mock dry-run checks

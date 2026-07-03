@@ -1,0 +1,45 @@
+graph TD
+    classDef valueNode fill:#121826,stroke:#38bdf8,stroke-width:2px,color:#f1f5f9;
+    classDef totalNode fill:#0b0f19,stroke:#a78bfa,stroke-width:2px,color:#f1f5f9;
+    classDef detailNode fill:#05070c,stroke:#475569,stroke-width:1px,color:#94a3b8;
+
+    subgraph Profile ["Prospect Profile Details"]
+        Name["Pawel Feldman<br/>CBDO & Board Member<br/>11 bit studios S.A."]:::detailNode
+    end
+
+    subgraph Inputs ["Mapped Base Values (0 - 5 Scale)"]
+        M_val["Mutual Contacts: 6<br/>(Capped Base: 5.0)"]:::detailNode
+        R_val["Seniority Rating<br/>(CBDO / Board Member: 5.0)"]:::detailNode
+        A_val["AI-Alignment Affinity<br/>(Traditional Publisher: 2.0)"]:::detailNode
+        B_val["Content Scale Need<br/>(Multi-Game Portfolio: 4.0)"]:::detailNode
+    end
+
+    subgraph Math ["Weight Multipliers & Subtotals"]
+        M_calc["5.0 * 3.0 = 15.0 Points"]:::valueNode
+        R_calc["5.0 * 2.0 = 10.0 Points"]:::valueNode
+        A_calc["2.0 * 1.5 = 3.0 Points"]:::valueNode
+        B_calc["4.0 * 1.0 = 4.0 Points"]:::valueNode
+    end
+
+    subgraph Output ["Prioritization Score Summary"]
+        Total["Final Rank Score: 32.0<br/>Priority Tier: High"]:::totalNode
+    end
+
+    Name --> M_val
+    Name --> R_val
+    Name --> A_val
+    Name --> B_val
+
+    M_val --> M_calc
+    R_val --> R_calc
+    A_val --> A_calc
+    B_val --> B_calc
+
+    M_calc --> Total
+    R_calc --> Total
+    A_calc --> Total
+    B_calc --> Total
+
+    style Profile fill:none,stroke:#334155,stroke-dasharray: 5 5;
+    style Inputs fill:none,stroke:#334155,stroke-dasharray: 5 5;
+    style Math fill:none,stroke:#334155,stroke-dasharray: 5 5;

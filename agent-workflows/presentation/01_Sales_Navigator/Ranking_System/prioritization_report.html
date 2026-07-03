@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergentic Prioritization &amp; Scoring Engine</title>
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Mermaid.js for live vector diagram rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        background: '#121826',
+        primaryColor: '#a78bfa',
+        primaryTextColor: '#f1f5f9',
+        lineColor: '#3d527a',
+        primaryBorderColor: '#38bdf8'
+      }
+    });
+  </script>
+
+  <style>
+    :root {
+      --bg-dark: #05070c;
+      --bg-card: #0b0f19;
+      --bg-input: #121826;
+      --border-color: #222e45;
+      --border-hover: #3d527a;
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dark: #64748b;
+      
+      --sky: #38bdf8;
+      --sky-glow: rgba(56, 189, 248, 0.12);
+      --violet: #a78bfa;
+      --violet-glow: rgba(167, 139, 250, 0.12);
+      --emerald: #34d399;
+      --emerald-glow: rgba(52, 211, 153, 0.12);
+      --rose: #fb7185;
+      --rose-glow: rgba(251, 113, 133, 0.12);
+      
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --gradient-brand: linear-gradient(135deg, var(--sky) 0%, var(--violet) 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 3rem 2rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Header Styling */
+    header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .header-logo h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+    }
+
+    .header-logo p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .header-meta {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: var(--violet-glow);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: var(--violet);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+    }
+
+    /* Main Grid Layout */
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Column: Details & Calculator */
+    .details-column {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .formula-box {
+      background: var(--bg-dark);
+      border: 1px dashed var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem 1.5rem;
+      font-family: monospace;
+      font-size: 1rem;
+      color: var(--sky);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+    }
+
+    /* Variables description list */
+    .var-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .var-item {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .var-badge {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9375rem;
+      color: var(--sky);
+      flex-shrink: 0;
+    }
+
+    .var-info h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin-bottom: 0.15rem;
+    }
+
+    .var-info p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Live Calculator Form */
+    .calc-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.5rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calc-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .calc-select {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .calc-select:focus {
+      border-color: var(--sky);
+    }
+
+    .calc-output {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, rgba(167, 139, 250, 0.05) 100%);
+      border: 1px solid var(--violet);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .output-score {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .output-tier {
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tier-high { background-color: var(--emerald-glow); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.3); }
+    .tier-med { background-color: var(--sky-glow); color: var(--sky); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .tier-low { background-color: var(--rose-glow); color: var(--rose); border: 1px solid rgba(251, 113, 133, 0.3); }
+
+    /* Right Column: Visual Diagrams */
+    .diagrams-column {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.3rem;
+      border-radius: 0.75rem;
+      align-self: flex-start;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background-color: var(--violet-glow);
+      color: var(--violet);
+      border: 1px solid rgba(167, 139, 250, 0.2);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Live Mermaid container */
+    .mermaid-viewport {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="header-logo">
+        <h1>Discovery Engine Prioritization</h1>
+        <p>Prioritizing target prospects based on network path warmth and tool adoption propensity.</p>
+      </div>
+      <div class="header-meta">Heuristic Framework Specification</div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <div class="grid-layout">
+      
+      <!-- Left Column: Details & Calculator -->
+      <div class="details-column">
+        
+        <!-- Score Heuristics -->
+        <div class="card">
+          <h2>Prioritization Heuristics</h2>
+          
+          <div class="formula-box">
+            Score = (M &times; 3.0) + (R &times; 2.0) + (A &times; 1.5) + (B &times; 1.0)
+          </div>
+          
+          <div class="var-list">
+            <!-- Var M -->
+            <div class="var-item">
+              <div class="var-badge">M</div>
+              <div class="var-info">
+                <h3>Mutual Contacts (Weight: 3.0)</h3>
+                <p>Gauges Warm path availability. Shared network contacts reduce trust friction and elevate LinkedIn message response rates.</p>
+              </div>
+            </div>
+            <!-- Var R -->
+            <div class="var-item">
+              <div class="var-badge">R</div>
+              <div class="var-info">
+                <h3>Title Seniority (Weight: 2.0)</h3>
+                <p>Identifies decision-making and contract signing authority (Heads of Production, CBDOs, and Founders rate highly).</p>
+              </div>
+            </div>
+            <!-- Var A -->
+            <div class="var-item">
+              <div class="var-badge">A</div>
+              <div class="var-info">
+                <h3>AI-Alignment Affinity (Weight: 1.5)</h3>
+                <p>Assesses willingness to integrate automated engines. High-volume design studios rate highly; traditional studios score lower.</p>
+              </div>
+            </div>
+            <!-- Var B -->
+            <div class="var-item">
+              <div class="var-badge">B</div>
+              <div class="var-info">
+                <h3>Content Scale Need (Weight: 1.0)</h3>
+                <p>Measures visual/video rendering volume bottlenecks. High publishing volumes create direct automation needs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Calculator -->
+        <div class="card">
+          <h2>Scoring Simulator</h2>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            
+            <!-- Mutual Select -->
+            <div class="calc-row">
+              <span class="calc-label">Shared Connections Count:</span>
+              <select class="calc-select" id="c-mutual" onchange="runSimulation()">
+                <option value="5">5+ Mutual Connections (Base: 5.0)</option>
+                <option value="4">4 Mutual Connections (Base: 4.0)</option>
+                <option value="3">3 Mutual Connections (Base: 3.0)</option>
+                <option value="2">2 Mutual Connections (Base: 2.0)</option>
+                <option value="1">1 Mutual Connection (Base: 1.0)</option>
+                <option value="0">0 Mutual Connections (Base: 0.0)</option>
+              </select>
+            </div>
+
+            <!-- Role Select -->
+            <div class="calc-row">
+              <span class="calc-label">Title / Seniority Rating:</span>
+              <select class="calc-select" id="c-role" onchange="runSimulation()">
+                <option value="5">CBDO / Head of Production / VP (Base: 5.0)</option>
+                <option value="4">Creative Director / Exec Director (Base: 4.0)</option>
+                <option value="3">Founder / CEO / Partner (Base: 3.0)</option>
+                <option value="2">Lead Artist / Senior Producer (Base: 2.0)</option>
+                <option value="1">Designer / Junior Producer (Base: 1.0)</option>
+              </select>
+            </div>
+
+            <!-- Alignment Select -->
+            <div class="calc-row">
+              <span class="calc-label">Tech AI-Alignment Affinity:</span>
+              <select class="calc-select" id="c-ai" onchange="runSimulation()">
+                <option value="5">AI-Native / Experimental cohort (Base: 5.0)</option>
+                <option value="4">High digital adoption / Immersive tech (Base: 4.0)</option>
+                <option value="3">Moderate / Lifestyle brand (Base: 3.0)</option>
+                <option value="2">Conservative / Traditional publisher (Base: 2.0)</option>
+                <option value="1">Strict privacy constraints (Base: 1.0)</option>
+              </select>
+            </div>
+
+            <!-- Content Select -->
+            <div class="calc-row">
+              <span class="calc-label">Content scale volume need:</span>
+              <select class="calc-select" id="c-content" onchange="runSimulation()">
+                <option value="5">Heavy (Daily social templates &amp; reels) (Base: 5.0)</option>
+                <option value="4">High (Weekly reels / campaigns) (Base: 4.0)</option>
+                <option value="3">Medium (Project promo trailer launches) (Base: 3.0)</option>
+                <option value="2">Low (Occasional updates) (Base: 2.0)</option>
+                <option value="1">Minimal (Static portfolio posts) (Base: 1.0)</option>
+              </select>
+            </div>
+
+            <!-- Output Block -->
+            <div class="calc-output">
+              <div>
+                <div style="font-size: 0.75rem; color: var(--text-dark); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+                  Calculated Score
+                </div>
+                <div class="output-score" id="output-score">31.0</div>
+              </div>
+              <span class="output-tier tier-high" id="output-tier">High Priority</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Visual Diagrams -->
+      <div class="diagrams-column">
+        
+        <!-- Tab menu -->
+        <div class="tabs">
+          <button class="tab-btn active" id="btn-flow" onclick="switchTab('flow')">General Prioritization Flow</button>
+          <button class="tab-btn" id="btn-case" onclick="switchTab('case')">Pawel Feldman Case Study</button>
+        </div>
+
+        <!-- General Flow -->
+        <div class="tab-content active" id="tab-flow">
+          <div class="mermaid-viewport">
+            <pre class="mermaid">
+graph TD
+    classDef weightNode fill:#121826,stroke:#38bdf8,stroke-width:2px,color:#f1f5f9;
+    classDef calcNode fill:#0b0f19,stroke:#a78bfa,stroke-width:2px,color:#f1f5f9;
+    classDef inputNode fill:#05070c,stroke:#475569,stroke-width:1px,color:#94a3b8;
+    
+    subgraph Inputs ["Scraped Prospect Parameters (Base Value 0 to 5)"]
+        M_in["Mutual Contacts Count (M)"]:::inputNode
+        R_in["Title Seniority Rating (R)<br/>(e.g., Head of Prod = 5, CD = 4, Founder = 3)"]:::inputNode
+        A_in["Platform AI-Alignment (A)<br/>(Generative/Experimental = 5, Strict Privacy = 1)"]:::inputNode
+        B_in["Content Scale Need (B)<br/>(High Volume = 5, Light Volume = 1)"]:::inputNode
+    end
+    
+    subgraph Multipliers ["Weight Multipliers (Priority scaling)"]
+        M_wt["Weight: 3.0"]:::weightNode
+        R_wt["Weight: 2.0"]:::weightNode
+        A_wt["Weight: 1.5"]:::weightNode
+        B_wt["Weight: 1.0"]:::weightNode
+    end
+
+    M_in -->|Value 0-5| M_wt
+    R_in -->|Value 0-5| R_wt
+    A_in -->|Value 0-5| A_wt
+    B_in -->|Value 0-5| B_wt
+
+    M_wt -->|M * 3.0| Sum["Score Summer"]:::calcNode
+    R_wt -->|R * 2.0| Sum
+    A_wt -->|A * 1.5| Sum
+    B_wt -->|B * 1.0| Sum
+
+    Sum -->|Weighted Sum| Score["Final Rank Score<br/>(Range: 0.0 - 37.5)"]:::calcNode
+    
+    style Inputs fill:none,stroke:#334155,stroke-dasharray: 5 5;
+    style Multipliers fill:none,stroke:#334155,stroke-dasharray: 5 5;
+            </pre>
+          </div>
+        </div>
+
+        <!-- Case Study Flow -->
+        <div class="tab-content" id="tab-case">
+          <div class="mermaid-viewport">
+            <pre class="mermaid">
+graph TD
+    classDef valueNode fill:#121826,stroke:#38bdf8,stroke-width:2px,color:#f1f5f9;
+    classDef totalNode fill:#0b0f19,stroke:#a78bfa,stroke-width:2px,color:#f1f5f9;
+    classDef detailNode fill:#05070c,stroke:#475569,stroke-width:1px,color:#94a3b8;
+
+    subgraph Profile ["Prospect Profile Details"]
+        Name["Pawel Feldman<br/>CBDO & Board Member<br/>11 bit studios S.A."]:::detailNode
+    end
+
+    subgraph Inputs ["Mapped Base Values (0 - 5 Scale)"]
+        M_val["Mutual Contacts: 6<br/>(Capped Base: 5.0)"]:::detailNode
+        R_val["Seniority Rating<br/>(CBDO / Board Member: 5.0)"]:::detailNode
+        A_val["AI-Alignment Affinity<br/>(Traditional Publisher: 2.0)"]:::detailNode
+        B_val["Content Scale Need<br/>(Trailers & Reels: 3.0)"]:::detailNode
+    end
+
+    subgraph Math ["Weight Multipliers & Subtotals"]
+        M_calc["5.0 * 3.0 = 15.0 Points"]:::valueNode
+        R_calc["5.0 * 2.0 = 10.0 Points"]:::valueNode
+        A_calc["2.0 * 1.5 = 3.0 Points"]:::valueNode
+        B_calc["3.0 * 1.0 = 3.0 Points"]:::valueNode
+    end
+
+    subgraph Output ["Prioritization Score Summary"]
+        Total["Final Rank Score: 31.0<br/>Priority Tier: High"]:::totalNode
+    end
+
+    Name --> M_val
+    Name --> R_val
+    Name --> A_val
+    Name --> B_val
+
+    M_val --> M_calc
+    R_val --> R_calc
+    A_val --> A_calc
+    B_val --> B_calc
+
+    M_calc --> Total
+    R_calc --> Total
+    A_calc --> Total
+    B_calc --> Total
+
+    style Profile fill:none,stroke:#334155,stroke-dasharray: 5 5;
+    style Inputs fill:none,stroke:#334155,stroke-dasharray: 5 5;
+    style Math fill:none,stroke:#334155,stroke-dasharray: 5 5;
+            </pre>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Tab Controller
+    const switchTab = (tabName) => {
+      // Toggle button active classes
+      document.getElementById('btn-flow').classList.toggle('active', tabName === 'flow');
+      document.getElementById('btn-case').classList.toggle('active', tabName === 'case');
+      
+      // Toggle viewport active classes
+      document.getElementById('tab-flow').classList.toggle('active', tabName === 'flow');
+      document.getElementById('tab-case').classList.toggle('active', tabName === 'case');
+    };
+
+    // Live Math Simulation
+    const runSimulation = () => {
+      const m = parseFloat(document.getElementById('c-mutual').value);
+      const r = parseFloat(document.getElementById('c-role').value);
+      const a = parseFloat(document.getElementById('c-ai').value);
+      const b = parseFloat(document.getElementById('c-content').value);
+      
+      // Compute score
+      const score = (m * 3.0) + (r * 2.0) + (a * 1.5) + (b * 1.0);
+      
+      // Update UI
+      const scoreDiv = document.getElementById('output-score');
+      const tierSpan = document.getElementById('output-tier');
+      
+      scoreDiv.innerText = score.toFixed(1);
+      
+      // Tier assessment
+      tierSpan.className = 'output-tier';
+      if (score >= 24) {
+        tierSpan.classList.add('tier-high');
+        tierSpan.innerText = 'High Priority';
+      } else if (score >= 14) {
+        tierSpan.classList.add('tier-med');
+        tierSpan.innerText = 'Medium Priority';
+      } else {
+        tierSpan.classList.add('tier-low');
+        tierSpan.innerText = 'Low Priority';
+      }
+    };
+    
+    // Initial run on page load
+    window.onload = () => {
+      runSimulation();
+    };
+  </script>
+</body>
+</html>

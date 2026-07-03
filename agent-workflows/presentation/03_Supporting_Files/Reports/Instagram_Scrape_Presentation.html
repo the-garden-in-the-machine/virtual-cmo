@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergentic Media-Scout: Instagram Scrape Insights</title>
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-space: #05070c;
+      --bg-dark: #0b0f19;
+      --bg-card: #121826;
+      --bg-card-glow: rgba(18, 24, 38, 0.6);
+      --border-color: #222e45;
+      --border-glow: #3d527a;
+      
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dark: #64748b;
+      
+      --sky: #38bdf8;
+      --sky-glow: rgba(56, 189, 248, 0.15);
+      --violet: #a78bfa;
+      --violet-glow: rgba(167, 139, 250, 0.15);
+      --emerald: #34d399;
+      --emerald-glow: rgba(52, 211, 153, 0.15);
+      --rose: #fb7185;
+      --rose-glow: rgba(251, 113, 133, 0.15);
+      
+      --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-fast: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      --gradient-brand: linear-gradient(135deg, var(--sky) 0%, var(--violet) 100%);
+      --gradient-emerald: linear-gradient(135deg, var(--emerald) 0%, var(--sky) 100%);
+      --gradient-rose: linear-gradient(135deg, var(--rose) 0%, var(--violet) 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-space);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Ambient background glows */
+    .bg-glow-1 {
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 50%;
+      height: 50%;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--sky-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bg-glow-2 {
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--violet-glow) 0%, transparent 70%);
+      filter: blur(80px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Presentation Wrapper */
+    .presentation-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    /* Header Navigation bar */
+    .nav-header {
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(5, 7, 12, 0.5);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.03em;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .deck-progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .slide-counter {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      width: 120px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--gradient-brand);
+      transition: var(--transition-fast);
+    }
+
+    /* Slide Deck viewport */
+    .slide-viewport {
+      flex-grow: 1;
+      position: relative;
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 3rem;
+    }
+
+    /* Individual slide styling */
+    .slide {
+      position: absolute;
+      top: 2rem;
+      bottom: 2rem;
+      left: 3rem;
+      right: 3rem;
+      opacity: 0;
+      transform: translateX(30px);
+      pointer-events: none;
+      transition: var(--transition-slow);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    /* Slide Typography */
+    .slide-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--sky);
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.75rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.5rem;
+      line-height: 1.15;
+    }
+
+    .title-gradient {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-desc {
+      font-size: 1.0625rem;
+      color: var(--text-muted);
+      max-width: 800px;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+    }
+
+    /* Footer Control bar */
+    .nav-footer {
+      padding: 1.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(5, 7, 12, 0.5);
+      backdrop-filter: blur(12px);
+    }
+
+    .footer-hints {
+      font-size: 0.75rem;
+      color: var(--text-dark);
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .hint-key {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-right: 0.25rem;
+    }
+
+    .footer-controls {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .control-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-fast);
+    }
+
+    .control-btn:hover:not(:disabled) {
+      border-color: var(--sky);
+      background-color: var(--sky-glow);
+      color: var(--sky);
+      transform: scale(1.05);
+    }
+
+    .control-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    /* ==========================================================================
+       SLIDE 1: Title Cover Slide
+       ========================================================================== */
+    .cover-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      background: var(--violet-glow);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+      color: var(--violet);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.5rem;
+    }
+
+    .cover-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+
+    .cover-meta {
+      border-left: 2px solid var(--border-color);
+      padding-left: 1.5rem;
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .meta-block-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .meta-block-val {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .graphic-mesh {
+      position: relative;
+      height: 380px;
+      background: linear-gradient(135deg, rgba(167, 139, 250, 0.05) 0%, rgba(56, 189, 248, 0.05) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 1.5rem;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .graphic-ring {
+      position: absolute;
+      border: 1px dashed rgba(56, 189, 248, 0.2);
+      border-radius: 50%;
+      animation: rotateRing 25s linear infinite;
+    }
+
+    .ring-1 { width: 260px; height: 260px; }
+    .ring-2 { width: 180px; height: 180px; animation-direction: reverse; border-color: rgba(167, 139, 250, 0.2); }
+    .ring-3 { width: 100px; height: 100px; }
+
+    .graphic-center {
+      position: relative;
+      width: 4rem;
+      height: 4rem;
+      background: var(--gradient-brand);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.4);
+    }
+
+    @keyframes rotateRing {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==========================================================================
+       SLIDE 2: Methods (Playwright Stealth Pipeline)
+       ========================================================================== */
+    .methods-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .method-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      position: relative;
+      transition: var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .method-card:hover {
+      border-color: var(--sky);
+      transform: translateY(-4px);
+    }
+
+    .step-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .method-card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .method-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .method-tag {
+      align-self: flex-start;
+      margin-top: auto;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+    }
+
+    .pipeline-connector {
+      position: absolute;
+      right: -0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--border-color);
+      z-index: 5;
+    }
+
+    @media (max-width: 1024px) {
+      .methods-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .pipeline-connector {
+        display: none;
+      }
+    }
+
+    /* ==========================================================================
+       SLIDE 3: Data Scope & Audited Metrics
+       ========================================================================== */
+    .data-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .counters-column {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .counter-widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .counter-widget::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 6px;
+    }
+
+    .w-sky::after { background: var(--sky); }
+    .w-violet::after { background: var(--violet); }
+    .w-emerald::after { background: var(--emerald); }
+    .w-rose::after { background: var(--rose); }
+
+    .counter-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .counter-num {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 800;
+      line-height: 1;
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .table-widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .table-widget table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table-widget th {
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 1.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .table-widget td {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.875rem;
+    }
+
+    .table-widget tr:last-child td {
+      border-bottom: none;
+    }
+
+    .tbl-highlight {
+      font-weight: 700;
+      color: var(--sky);
+    }
+
+    /* ==========================================================================
+       SLIDE 4: Content Taxonomy
+       ========================================================================== */
+    .taxo-layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 2.5rem;
+      height: 350px;
+    }
+
+    .taxo-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .taxo-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 1.1rem 1.5rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      text-align: left;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      transition: var(--transition-fast);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .taxo-btn:hover {
+      border-color: var(--border-glow);
+      color: var(--text-main);
+    }
+
+    .taxo-btn.active {
+      background: var(--violet-glow);
+      border-color: var(--violet);
+      color: var(--violet);
+    }
+
+    .taxo-details-box {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px dashed var(--border-color);
+      border-radius: 1rem;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .taxo-panel {
+      position: absolute;
+      top: 2.5rem;
+      bottom: 2.5rem;
+      left: 2.5rem;
+      right: 2.5rem;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .taxo-panel.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .taxo-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .taxo-desc {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .taxo-examples-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--sky);
+      margin-top: 1rem;
+    }
+
+    .taxo-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .taxo-tag {
+      background: rgba(56, 189, 248, 0.06);
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      color: var(--sky);
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       SLIDE 5: Audience Engagement Triggers
+       ========================================================================== */
+    .trigger-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .trigger-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .trigger-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .trigger-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--violet);
+    }
+
+    .trigger-quote {
+      font-size: 0.875rem;
+      font-style: italic;
+      color: var(--sky);
+      background: rgba(56, 189, 248, 0.03);
+      padding: 0.5rem 0.75rem;
+      border-left: 3px solid var(--sky);
+      border-radius: 0 0.5rem 0.5rem 0;
+      line-height: 1.4;
+    }
+
+    .trigger-card h4 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .trigger-card p {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       SLIDE 6: Strategic Recommendations
+       ========================================================================== */
+    .rec-layout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .rec-card {
+      background: linear-gradient(180deg, var(--bg-card) 0%, rgba(18, 24, 38, 0.3) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .rec-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 1.5rem;
+      right: 1.5rem;
+      height: 3px;
+      background: var(--gradient-brand);
+      border-radius: 0 0 9999px 9999px;
+    }
+
+    .rec-card h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .rec-bullet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .rec-bullet-list li {
+      list-style-type: none;
+      position: relative;
+      padding-left: 1.25rem;
+    }
+
+    .rec-bullet-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--emerald);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       SLIDE 7: Related Prospects B2B List
+       ========================================================================== */
+    .prospects-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      height: 360px;
+    }
+
+    .prospects-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .prospects-column::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .prospects-column::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 9999px;
+    }
+
+    .column-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--sky);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.25rem;
+      position: sticky;
+      top: 0;
+      background: var(--bg-space);
+      z-index: 10;
+    }
+
+    .prospect-item-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition-fast);
+    }
+
+    .prospect-item-card:hover {
+      border-color: var(--border-glow);
+      transform: translateX(4px);
+    }
+
+    .prospect-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .prospect-name {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: var(--text-main);
+    }
+
+    .prospect-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .prospect-action {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--sky);
+      text-decoration: none;
+      transition: var(--transition-fast);
+    }
+
+    .prospect-action:hover {
+      background: var(--sky-glow);
+      border-color: var(--sky);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Glow Elements -->
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <div class="presentation-container">
+    
+    <!-- Header Navigation bar -->
+    <header class="nav-header">
+      <div class="brand-title">EMERGENTIC // MEDIA-SCOUT</div>
+      <div class="deck-progress-wrapper">
+        <div class="slide-counter" id="slide-counter">Slide 1 of 7</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Slide Viewport -->
+    <main class="slide-viewport">
+      
+      <!-- SLIDE 1: Cover Slide -->
+      <section class="slide active" id="slide-1">
+        <div class="cover-layout">
+          <div>
+            <span class="cover-badge">Research Presentation</span>
+            <h1 class="cover-title">Instagram Audience &amp; Content Insights</h1>
+            <p class="slide-desc" style="font-size: 1.15rem; margin-bottom: 2rem;">
+              An executive review of the methods, database mappings, and audience engagement results mapped from benchmark creative profiles over the past month.
+            </p>
+            <div class="cover-meta">
+              <div>
+                <div class="meta-block-title">Scraped Timeline</div>
+                <div class="meta-block-val">May 8 – June 8, 2026</div>
+              </div>
+              <div>
+                <div class="meta-block-title">Infrastructure</div>
+                <div class="meta-block-val">Playwright Stealth Engine</div>
+              </div>
+            </div>
+          </div>
+          <div class="graphic-mesh">
+            <div class="graphic-ring ring-1"></div>
+            <div class="graphic-ring ring-2"></div>
+            <div class="graphic-ring ring-3"></div>
+            <div class="graphic-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#05070c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: Methods (Playwright Stealth) -->
+      <section class="slide" id="slide-2">
+        <span class="slide-subtitle">01 / Methodology</span>
+        <h2 class="slide-title">Stealth Ingestion &amp; Capture</h2>
+        <p class="slide-desc">
+          To bypass strict login blocks and CAPTCHAs, we engineered a session-saving architecture utilizing Playwright's persistent storage state coupled with user-agent fingerprint overrides.
+        </p>
+        
+        <div class="methods-grid">
+          <!-- Card 1 -->
+          <div class="method-card">
+            <div class="step-number">01</div>
+            <h3>Headed Login</h3>
+            <p>A visual Chromium instance lets the human log into a throwaway account once to resolve CAPTCHAs and 2FA.</p>
+            <div class="method-tag">Manual Setup</div>
+            <div class="pipeline-connector">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="method-card">
+            <div class="step-number">02</div>
+            <h3>State Capture</h3>
+            <p>Browser cookies, local storage, and session tokens are captured and serialized to an <code>auth.json</code> file.</p>
+            <div class="method-tag">State Injection</div>
+            <div class="pipeline-connector">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="method-card">
+            <div class="step-number">03</div>
+            <h3>Stealth Bypass</h3>
+            <p>Subsequent headless runs launch with stealth plugins, loading cookies to bypass the login walls completely.</p>
+            <div class="method-tag">Automation</div>
+            <div class="pipeline-connector">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="method-card">
+            <div class="step-number">04</div>
+            <h3>API Querying</h3>
+            <p>Rather than fragile DOM parsing, the engine queries the internal JSON endpoints mimicking authenticated requests.</p>
+            <div class="method-tag">Data Export</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: Data Scope -->
+      <section class="slide" id="slide-3">
+        <span class="slide-subtitle">02 / Data Scope</span>
+        <h2 class="slide-title">Audited Profiles &amp; Metrics</h2>
+        <p class="slide-desc">
+          We scanned timeline structures and user interaction logs for two primary benchmarks over a 30-day timeline.
+        </p>
+
+        <div class="data-layout">
+          <div class="counters-column">
+            <!-- Metric 1 -->
+            <div class="counter-widget w-sky">
+              <div class="counter-info">
+                <div class="counter-label">Audited Profiles</div>
+                <div class="counter-num" data-target="2">0</div>
+              </div>
+            </div>
+            <!-- Metric 2 -->
+            <div class="counter-widget w-violet">
+              <div class="counter-info">
+                <div class="counter-label">Total Posts Mapped</div>
+                <div class="counter-num" data-target="18">0</div>
+              </div>
+            </div>
+            <!-- Metric 3 -->
+            <div class="counter-widget w-emerald">
+              <div class="counter-info">
+                <div class="counter-label">Captured Assets</div>
+                <div class="counter-num" data-target="59">0</div>
+              </div>
+            </div>
+            <!-- Metric 4 -->
+            <div class="counter-widget w-rose">
+              <div class="counter-info">
+                <div class="counter-label">Comments Harvested</div>
+                <div class="counter-num" data-target="53">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-widget">
+            <table>
+              <thead>
+                <tr>
+                  <th>Audit Criteria</th>
+                  <th>@fuserstudio</th>
+                  <th>@marshmallowlaserfeast</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tbl-highlight">Target Category</td>
+                  <td>Creative Editing Engine</td>
+                  <td>Experiential Art Collective</td>
+                </tr>
+                <tr>
+                  <td class="tbl-highlight">Posting Frequency</td>
+                  <td>High (12 posts in 30 days)</td>
+                  <td>Moderate (6 posts in 30 days)</td>
+                </tr>
+                <tr>
+                  <td class="tbl-highlight">Average Interval</td>
+                  <td>Every 1–3 days</td>
+                  <td>Every 3–10 days (event-driven)</td>
+                </tr>
+                <tr>
+                  <td class="tbl-highlight">Media Distribution</td>
+                  <td>23 Images / 14 Videos</td>
+                  <td>18 Images / 4 Videos</td>
+                </tr>
+                <tr>
+                  <td class="tbl-highlight">Primary Callouts</td>
+                  <td>Software features &amp; case studies</td>
+                  <td>Exhibition openings &amp; galleries</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: Content Taxonomy -->
+      <section class="slide" id="slide-4">
+        <span class="slide-subtitle">03 / Results</span>
+        <h2 class="slide-title">Content Category Taxonomy</h2>
+        <p class="slide-desc">
+          Audited posts fall into four core content pillars. Click a category to view the description and target examples.
+        </p>
+
+        <div class="taxo-layout">
+          <div class="taxo-menu">
+            <button class="taxo-btn active" onclick="switchTaxo(0)">
+              <span>Tool Feature Releases</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="taxo-btn" onclick="switchTaxo(1)">
+              <span>Creative Demos &amp; Case Studies</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="taxo-btn" onclick="switchTaxo(2)">
+              <span>Exhibitions &amp; Residencies</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button class="taxo-btn" onclick="switchTaxo(3)">
+              <span>Partnerships &amp; Collabs</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <div class="taxo-details-box">
+            <!-- Panel 0 -->
+            <div class="taxo-panel active" id="taxo-p-0">
+              <div class="taxo-title">Platform &amp; Tool Releases</div>
+              <div class="taxo-desc">
+                Bite-sized visual walkthroughs showing new software elements, UI updates, and automation nodes. Fuser Studio excels here by showing dynamic vector imports, split layer masks, and texture tools.
+              </div>
+              <div class="taxo-examples-title">Mapped Examples</div>
+              <div class="taxo-tag-list">
+                <span class="taxo-tag">Upload Custom Fonts</span>
+                <span class="taxo-tag">Text-to-Vector Compositor</span>
+                <span class="taxo-tag">Split &amp; Group Layers</span>
+                <span class="taxo-tag">Frame Saver</span>
+              </div>
+            </div>
+
+            <!-- Panel 1 -->
+            <div class="taxo-panel" id="taxo-p-1">
+              <div class="taxo-title">Creative Demos &amp; Case Studies</div>
+              <div class="taxo-desc">
+                Finished artwork or creative concepts rendered directly inside the platform. Demonstrating final asset aesthetics drives creative curiosity and increases product value.
+              </div>
+              <div class="taxo-examples-title">Mapped Examples</div>
+              <div class="taxo-tag-list">
+                <span class="taxo-tag">Deep Sea as Dessert (Matcha Confections)</span>
+                <span class="taxo-tag">Recraft V4 Compositor Node test</span>
+              </div>
+            </div>
+
+            <!-- Panel 2 -->
+            <div class="taxo-panel" id="taxo-p-2">
+              <div class="taxo-title">Exhibitions &amp; Physical Residencies</div>
+              <div class="taxo-desc">
+                Immersive teasers showcasing visitor interactions inside physical gallery and museum venues. Marshmallow Laser Feast leverages high-end spatial projections to drive travel intent and brand authority.
+              </div>
+              <div class="taxo-examples-title">Mapped Examples</div>
+              <div class="taxo-tag-list">
+                <span class="taxo-tag">Seeing Echoes in the Mind of the Whale (Venice)</span>
+                <span class="taxo-tag">ArtScience Museum Residency (Singapore)</span>
+              </div>
+            </div>
+
+            <!-- Panel 3 -->
+            <div class="taxo-panel" id="taxo-p-3">
+              <div class="taxo-title">Partnerships &amp; Collaborator Programs</div>
+              <div class="taxo-desc">
+                Co-authored content mapping mutual events or partner workshops. Involving related accounts pools audiences, aggregates comments, and expands organic feed visibility.
+              </div>
+              <div class="taxo-examples-title">Mapped Examples</div>
+              <div class="taxo-tag-list">
+                <span class="taxo-tag">Rhizome 7x7 @ New Museum</span>
+                <span class="taxo-tag">New Inc Keychain Workshop</span>
+                <span class="taxo-tag">Social Software Closing Event (Blake Ave)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: Audience Engagement Triggers -->
+      <section class="slide" id="slide-5">
+        <span class="slide-subtitle">04 / Audience Analysis</span>
+        <h2 class="slide-title">Engagement &amp; Comment Triggers</h2>
+        <p class="slide-desc">
+          Auditing user comments revealed four distinct behavioral triggers that drive organic interaction and lead generation.
+        </p>
+
+        <div class="trigger-grid">
+          <!-- Card 1 -->
+          <div class="trigger-card">
+            <div class="trigger-header">
+              <span class="trigger-label">Trigger 1: Prompt Requests</span>
+              <span style="color: var(--sky); font-weight: 700;">@fuserstudio</span>
+            </div>
+            <h4>The "Magic Prompt" Call</h4>
+            <p>Showing vector-generation compositor node outputs prompted users to request prompt strings to replicate the work.</p>
+            <div class="trigger-quote">"Give us the prompt!!! 🔥"</div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="trigger-card">
+            <div class="trigger-header">
+              <span class="trigger-label">Trigger 2: Developer Speculation</span>
+              <span style="color: var(--sky); font-weight: 700;">@fuserstudio</span>
+            </div>
+            <h4>Practical Utility Inquiries</h4>
+            <p>Publishing split layer tools attracted developers who proposed workflow integrations for their asset pipelines.</p>
+            <div class="trigger-quote">"could see this working well with asset sheets too. Will try this out!"</div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="trigger-card">
+            <div class="trigger-header">
+              <span class="trigger-label">Trigger 3: Community Milestones</span>
+              <span style="color: var(--violet); font-weight: 700;">@marshmallowlaserfeast</span>
+            </div>
+            <h4>Celebratory Congratulatory Nodes</h4>
+            <p>Residency and project launch posts acted as hubs for curator and designer peers to leave comments.</p>
+            <div class="trigger-quote">"Amazing and congrats to you all!"</div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="trigger-card">
+            <div class="trigger-header">
+              <span class="trigger-label">Trigger 4: Installation FOMO</span>
+              <span style="color: var(--violet); font-weight: 700;">@marshmallowlaserfeast</span>
+            </div>
+            <h4>Spatial &amp; Location Inquiries</h4>
+            <p>Showing projections of whales inside Venice galleries prompted queries on international exhibition schedules.</p>
+            <div class="trigger-quote">"Any chance to bring it to malaysia too?"</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: Strategic Recommendations -->
+      <section class="slide" id="slide-6">
+        <span class="slide-subtitle">05 / Strategy</span>
+        <h2 class="slide-title">Emergentic Content Playbook</h2>
+        <p class="slide-desc">
+          Strategic takeaways to optimize our media pipelines, outreach programs, and social media layout styles.
+        </p>
+
+        <div class="rec-layout">
+          <!-- Rec 1 -->
+          <div class="rec-card">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--sky)" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              Co-Authoring Collabs
+            </h3>
+            <ul class="rec-bullet-list">
+              <li>Use Instagram's <b>Collab</b> feature when publishing tools.</li>
+              <li>Dual-publish with partners (n8n, artists, client brands).</li>
+              <li>Aggregates feed likes/comments into a single collective pool.</li>
+            </ul>
+          </div>
+
+          <!-- Rec 2 -->
+          <div class="rec-card">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--violet)" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Output-to-Node Carousels
+            </h3>
+            <ul class="rec-bullet-list">
+              <li>Put a beautiful, final visual render as slide 1.</li>
+              <li>Show the code, workflow node graph, or ComfyUI JSON on slide 2.</li>
+              <li>Captures initial attention, then satisfies technical curiosity.</li>
+            </ul>
+          </div>
+
+          <!-- Rec 3 -->
+          <div class="rec-card">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--emerald)" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              Comment Loop Triggers
+            </h3>
+            <ul class="rec-bullet-list">
+              <li>Instruct viewers to comment a keyword (e.g. "SCRIPT").</li>
+              <li>Triggers an automated DM with the workflow JSON or code link.</li>
+              <li>Multiplies comments, boosting the Instagram algorithm.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: Related Prospects B2B List -->
+      <section class="slide" id="slide-7">
+        <span class="slide-subtitle">06 / Business Development</span>
+        <h2 class="slide-title">High-Affinity B2B Prospects</h2>
+        <p class="slide-desc">
+          Based on the scrape parameters, we identified 10 additional target brands matching our Ideal Customer Profiles (ICPs) for campaign outreach.
+        </p>
+
+        <div class="prospects-layout">
+          <!-- Column 1 -->
+          <div class="prospects-column">
+            <div class="column-title">Experiential &amp; Immersive Studios</div>
+            
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@teamlab</span>
+                <span class="prospect-desc">International interactive museum collective</span>
+              </div>
+              <a href="https://teamlab.art" target="_blank" class="prospect-action">Visit</a>
+            </div>
+
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@momentfactory</span>
+                <span class="prospect-desc">Architectural projection &amp; light shows</span>
+              </div>
+              <a href="https://momentfactory.com" target="_blank" class="prospect-action">Visit</a>
+            </div>
+
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@refikanadol</span>
+                <span class="prospect-desc">Pioneer of fluid AI data installations</span>
+              </div>
+              <a href="https://refikanadol.com" target="_blank" class="prospect-action">Visit</a>
+            </div>
+
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@ouuch_studio</span>
+                <span class="prospect-desc">ML &amp; neural network data paint collective</span>
+              </div>
+              <a href="https://ouchhh.tv" target="_blank" class="prospect-action">Visit</a>
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="prospects-column">
+            <div class="column-title">Creative Automation &amp; Coding</div>
+            
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@recraft.ai</span>
+                <span class="prospect-desc">Generative vector design platform APIs</span>
+              </div>
+              <a href="https://recraft.ai" target="_blank" class="prospect-action">Visit</a>
+            </div>
+
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@diagram.design</span>
+                <span class="prospect-desc">AI-driven UI design utilities (Figma)</span>
+              </div>
+              <a href="https://diagram.design" target="_blank" class="prospect-action">Visit</a>
+            </div>
+
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@variable_io</span>
+                <span class="prospect-desc">Bespoke software design automation tools</span>
+              </div>
+              <a href="https://variable.io" target="_blank" class="prospect-action">Visit</a>
+            </div>
+
+            <div class="prospect-item-card">
+              <div class="prospect-info">
+                <span class="prospect-name">@man.vs.machine</span>
+                <span class="prospect-desc">Programmatic video campaign generators</span>
+              </div>
+              <a href="https://manvsmachine.co.uk" target="_blank" class="prospect-action">Visit</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Controls -->
+    <footer class="nav-footer">
+      <div class="footer-hints">
+        <div><span class="hint-key">←</span> <span class="hint-key">→</span> Navigate Slides</div>
+        <div><span class="hint-key">Space</span> Next</div>
+      </div>
+      <div class="footer-controls">
+        <button class="control-btn" id="prev-btn" onclick="prevSlide()" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button class="control-btn" id="next-btn" onclick="nextSlide()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Slide Navigation Logic
+    let currentSlide = 1;
+    const totalSlides = 7;
+
+    const updateSlideUI = () => {
+      // Manage slide active classes
+      for (let i = 1; i <= totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        slide.className = 'slide';
+        if (i === currentSlide) {
+          slide.classList.add('active');
+        } else if (i < currentSlide) {
+          slide.classList.add('prev');
+        }
+      }
+
+      // Update Header progress
+      document.getElementById('slide-counter').innerText = `Slide ${currentSlide} of ${totalSlides}`;
+      const percentage = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+      document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
+
+      // Enable/Disable control buttons
+      document.getElementById('prev-btn').disabled = (currentSlide === 1);
+      document.getElementById('next-btn').disabled = (currentSlide === totalSlides);
+
+      // Trigger custom animations when entering specific slides
+      if (currentSlide === 3) {
+        animateCounters();
+      }
+    };
+
+    const nextSlide = () => {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlideUI();
+      }
+    };
+
+    const prevSlide = () => {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlideUI();
+      }
+    };
+
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      }
+    });
+
+    // Touch Swiping Support
+    let touchStartX = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+
+    window.addEventListener('touchend', (e) => {
+      let touchEndX = e.changedTouches[0].screenX;
+      if (touchStartX - touchEndX > 50) {
+        nextSlide(); // Swiped left, show next
+      } else if (touchEndX - touchStartX > 50) {
+        prevSlide(); // Swiped right, show prev
+      }
+    });
+
+    // Count-Up Animation for Slide 3 Metrics
+    let countersAnimated = false;
+    const animateCounters = () => {
+      if (countersAnimated) return; // Only animate once
+      countersAnimated = true;
+
+      const counters = document.querySelectorAll('.counter-num');
+      counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-target'), 10);
+        let count = 0;
+        const speed = 2000 / target; // Max 2 seconds animation
+
+        const updateCount = () => {
+          count++;
+          counter.innerText = count < 10 ? `0${count}` : count;
+          if (count < target) {
+            setTimeout(updateCount, speed);
+          } else {
+            counter.innerText = target < 10 ? `0${target}` : target;
+          }
+        };
+
+        updateCount();
+      });
+    };
+
+    // Taxonomy Panel Tab Switcher on Slide 4
+    const switchTaxo = (index) => {
+      // Update active menu buttons
+      const buttons = document.querySelectorAll('.taxo-btn');
+      buttons.forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === index);
+      });
+
+      // Update active details panels
+      const panels = document.querySelectorAll('.taxo-panel');
+      panels.forEach((panel, idx) => {
+        panel.classList.toggle('active', idx === index);
+      });
+    };
+  </script>
+</body>
+</html>

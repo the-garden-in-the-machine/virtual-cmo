@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergentic Outreach Pipeline Dashboard</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --bg-card: #121826;
+      --bg-input: #1b2336;
+      --border-color: #263147;
+      --border-hover: #3d4f73;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --sky: #38bdf8;
+      --sky-glow: rgba(56, 189, 248, 0.12);
+      --violet: #a78bfa;
+      --violet-glow: rgba(167, 139, 250, 0.12);
+      --emerald: #34d399;
+      --emerald-glow: rgba(52, 211, 153, 0.12);
+      --amber: #fbbf24;
+      --amber-glow: rgba(251, 191, 36, 0.12);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding: 1.5rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styling */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, var(--sky) 0%, var(--violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+      font-weight: 500;
+    }
+
+    /* Main Dashboard Layout */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 1.5rem;
+      flex-grow: 1;
+    }
+
+    /* Sidebar / Leads List */
+    .sidebar {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 180px);
+      min-height: 500px;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .leads-count {
+      background-color: rgba(255, 255, 255, 0.05);
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--sky);
+      margin-left: 0.5rem;
+    }
+
+    .search-box {
+      width: 100%;
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      color: var(--text-main);
+      font-size: 0.875rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-box:focus {
+      border-color: var(--sky);
+    }
+
+    .leads-list {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .lead-card {
+      background-color: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .lead-card:hover {
+      background-color: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-hover);
+    }
+
+    .lead-card.active {
+      background-color: rgba(139, 92, 246, 0.06);
+      border-color: var(--violet);
+      box-shadow: inset 3px 0 0 0 var(--violet);
+    }
+
+    .lead-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+
+    .lead-name {
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: var(--text-main);
+    }
+
+    .lead-company {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.15rem;
+    }
+
+    .score-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.375rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .score-high {
+      background-color: var(--emerald-glow);
+      color: var(--emerald);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .score-med {
+      background-color: var(--sky-glow);
+      color: var(--sky);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .score-low {
+      background-color: var(--amber-glow);
+      color: var(--amber);
+      border: 1px solid rgba(251, 191, 36, 0.2);
+    }
+
+    .lead-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .mutual-connections-tag {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--violet);
+      font-weight: 600;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      margin-right: 0.25rem;
+    }
+
+    .status-ready { background-color: var(--sky); }
+    .status-sent { background-color: var(--emerald); }
+    .status-edited { background-color: var(--amber); }
+
+    /* Right Side Workspace / Draft Editor */
+    .editor-pane {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 180px);
+      min-height: 500px;
+      overflow: hidden;
+    }
+
+    .editor-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .editor-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .prospect-fullname {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .prospect-details {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .detail-divider {
+      color: var(--border-color);
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .btn:hover {
+      border-color: var(--border-hover);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    .btn-primary {
+      background-color: var(--violet);
+      color: var(--bg-dark);
+      border: 1px solid var(--violet);
+    }
+
+    .btn-primary:hover {
+      background-color: rgba(167, 139, 250, 0.9);
+      border-color: rgba(167, 139, 250, 0.9);
+    }
+
+    .btn-sky {
+      color: var(--sky);
+      border-color: rgba(56, 189, 248, 0.3);
+      background: var(--sky-glow);
+    }
+
+    .btn-sky:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--sky);
+    }
+
+    /* Editor Body */
+    .editor-body {
+      flex-grow: 1;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      overflow: hidden;
+    }
+
+    .textarea-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .draft-textarea {
+      flex-grow: 1;
+      width: 100%;
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      color: #e2e8f0;
+      font-family: 'Inter', monospace;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .draft-textarea:focus {
+      border-color: var(--violet);
+      box-shadow: 0 0 0 2px var(--violet-glow);
+    }
+
+    /* Metadata / Sidebar Context Pane */
+    .context-pane {
+      background-color: rgba(255, 255, 255, 0.01);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      height: 100%;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.8125rem;
+    }
+
+    .meta-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .meta-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .mutual-user-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+    }
+
+    .mutual-user-tag {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--violet);
+      font-weight: 600;
+    }
+
+    /* Scoring Weights Breakdown list */
+    .weight-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      padding: 0.25rem 0;
+      color: var(--text-muted);
+    }
+
+    .weight-row strong {
+      color: var(--text-main);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: var(--emerald);
+      color: var(--bg-dark);
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 700;
+      font-size: 0.875rem;
+      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      transform: translateY(1rem);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Dialog / Modal Styling */
+    dialog {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      color: var(--text-main);
+      padding: 2rem;
+      max-width: 800px;
+      width: 90%;
+      margin: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      outline: none;
+      backdrop-filter: blur(16px);
+    }
+
+    dialog::backdrop {
+      background: rgba(5, 7, 12, 0.75);
+      backdrop-filter: blur(8px);
+    }
+
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .dialog-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+      background: linear-gradient(135deg, var(--sky) 0%, var(--violet) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .dialog-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: 700;
+      transition: var(--transition);
+    }
+
+    .dialog-close:hover {
+      color: var(--text-main);
+    }
+
+    /* Tabs inside dialog */
+    .dialog-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .dialog-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .dialog-tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .dialog-tab-btn.active {
+      background-color: var(--violet-glow);
+      color: var(--violet);
+      border: 1px solid rgba(167, 139, 250, 0.3);
+    }
+
+    .dialog-content-pane {
+      display: none;
+    }
+
+    .dialog-content-pane.active {
+      display: block;
+    }
+
+    /* Side-by-side pitch comparison */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pitch-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    .pitch-box-title {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .pitch-ai {
+      border-color: rgba(244, 63, 94, 0.3);
+      color: var(--text-muted);
+    }
+
+    .pitch-parag {
+      border-color: rgba(52, 211, 153, 0.3);
+      color: var(--text-main);
+    }
+
+    /* Calibrator Results Box */
+    .calibration-results {
+      background: rgba(56, 189, 248, 0.04);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    /* Diagram classes */
+    .diagram-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem 0;
+    }
+
+    .diag-step {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .diag-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.15rem;
+    }
+
+    .diag-icon-m { background: var(--violet-glow); color: var(--violet); border: 1px solid rgba(167, 139, 250, 0.3); }
+    .diag-icon-r { background: var(--sky-glow); color: var(--sky); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .diag-icon-a { background: var(--emerald-glow); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.3); }
+    .diag-icon-b { background: var(--amber-glow); color: var(--amber); border: 1px solid rgba(251, 191, 36, 0.3); }
+
+    .diag-info {
+      flex-grow: 1;
+    }
+
+    .diag-title-row {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.875rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .diag-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .diag-math {
+      font-family: monospace;
+      font-size: 0.875rem;
+      color: var(--sky);
+      font-weight: 700;
+    }
+
+    .diag-arrow {
+      text-align: center;
+      color: var(--border-color);
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .diag-total {
+      background: var(--gradient-brand);
+      color: var(--bg-dark);
+      font-weight: 800;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+      font-size: 1.125rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <header>
+      <div class="header-logo">
+        <h1>Emergentic Discovery Engine</h1>
+        <div class="header-meta">Review &amp; Outreach Queue</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="btn btn-sky" onclick="openCalibrationDialog()" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 9999px;">
+          Voice Calibrator &amp; Weights Diagram
+        </button>
+        <div class="header-meta">Agent Status: <span style="color: var(--sky); font-weight: 700;">Hermes Idle</span></div>
+      </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="dashboard-layout">
+      
+      <!-- Left Sidebar: Leads List -->
+      <aside class="sidebar">
+        
+        <div class="sidebar-header">
+          <div style="display: flex; align-items: center; margin-bottom: 0.50rem;">
+            <span class="sidebar-title">Outreach Target Queue</span>
+            <span class="leads-count" id="leads-count">0</span>
+          </div>
+          <input type="text" class="search-box" id="lead-search" placeholder="Filter by company or recipient..." oninput="filterLeads()">
+        </div>
+
+        <div class="leads-list" id="leads-list-container">
+          <!-- Rendered Dynamically -->
+        </div>
+
+      </aside>
+
+      <!-- Right Editor Pane -->
+      <main class="editor-pane" id="editor-pane-empty" style="display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+        <div>Select a target prospect to review their customized draft.</div>
+      </main>
+
+      <main class="editor-pane" id="editor-pane-active" style="display: none;">
+        
+        <div class="editor-header">
+          <div class="editor-title-block">
+            <div class="prospect-fullname" id="active-fullname">Kyle Reese</div>
+            <div class="prospect-details">
+              <span id="active-role">Creative Director</span>
+              <span class="detail-divider">|</span>
+              <span id="active-company" style="font-weight: 700; color: var(--sky);">Ganni</span>
+            </div>
+          </div>
+          
+          <div class="editor-actions">
+            <a href="#" target="_blank" class="btn btn-sky" id="active-linkedin-btn">
+              View Profile 
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+            <button class="btn btn-primary" onclick="copyActiveDraft()">
+              Copy Pitch Draft
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="editor-body">
+          
+          <!-- Code Area / Textarea -->
+          <div class="textarea-wrapper">
+            <textarea class="draft-textarea" id="active-textarea" oninput="updateActiveDraftText()"></textarea>
+          </div>
+
+          <!-- Lead Context Sidebar -->
+          <div class="context-pane">
+            
+            <div>
+              <div class="section-title">Discovery Context</div>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div class="meta-item">
+                  <span class="meta-label">LinkedIn Prospect URL</span>
+                  <a href="#" target="_blank" class="btn-link" id="active-context-url" style="word-break: break-all; font-size: 0.75rem;">linkedin.com/in/prospect</a>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Mutual Connections</span>
+                  <div class="mutual-user-list" id="active-mutual-list">
+                    <!-- Mutuals dynamically rendered -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title">Weighted Rank Score</div>
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="meta-label">Total score:</span>
+                  <span class="score-badge score-high" id="active-rank-badge">0.0</span>
+                </div>
+                <div style="border-top: 1px dashed var(--border-color); margin-top: 0.5rem; padding-top: 0.5rem;">
+                  <div class="weight-row">
+                    <span>Mutuals (M &times; 3.0):</span>
+                    <strong id="w-mutuals">0.0</strong>
+                  </div>
+                  <div class="weight-row">
+                    <span>Role Factor (R &times; 2.0):</span>
+                    <strong id="w-role">0.0</strong>
+                  </div>
+                  <div class="weight-row">
+                    <span>AI-Alignment (A &times; 1.5):</span>
+                    <strong id="w-ai">0.0</strong>
+                  </div>
+                  <div class="weight-row">
+                    <span>Scale Need (B &times; 1.0):</span>
+                    <strong id="w-need">0.0</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: auto;">
+              <div class="section-title">Status Control</div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn" style="flex: 1; padding: 0.4rem;" onclick="setStatus('Ready')">Reset</button>
+                <button class="btn btn-primary" style="flex: 1; padding: 0.4rem; background: var(--emerald); border-color: var(--emerald); color: var(--bg-dark);" onclick="setStatus('Sent')">Mark Sent</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+    Copied to clipboard!
+  </div>
+
+  <!-- Dialog Modal: Voice Calibration & Heuristics Diagram -->
+  <dialog id="calib-dialog">
+    <div class="dialog-header">
+      <h3 class="dialog-title">Parag's Voice Calibration &amp; Scoring Engine</h3>
+      <button class="dialog-close" onclick="closeCalibrationDialog()">&times;</button>
+    </div>
+
+    <div class="dialog-tabs">
+      <button class="dialog-tab-btn active" id="btn-voice-tab" onclick="switchDialogTab('voice-tab')">Voice Calibrator</button>
+      <button class="dialog-tab-btn" id="btn-scoring-tab" onclick="switchDialogTab('scoring-tab')">Scoring Diagram</button>
+    </div>
+
+    <!-- Tab 1: Voice Calibrator -->
+    <div class="dialog-content-pane active" id="voice-tab">
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.5;">
+        Capturing Parag's editorial, low-hype voice is key to pipeline reliability. Compare the style formats below, paste a writing sample to verify compatibility, and calibrate the system prompt.
+      </p>
+
+      <div class="comparison-grid">
+        <div class="pitch-box pitch-ai">
+          <div class="pitch-box-title" style="color: var(--rose);">
+            ❌ Typical AI Marketing Pitch
+          </div>
+          <div style="font-size: 0.75rem;">
+            "Dear Kyle, I hope this email finds you well! I am super excited to introduce you to Emergentic, a revolutionary game-changing platform designed to supercharge your design systems! Let's delve into how we can leverage AI to scale your brand..."
+          </div>
+        </div>
+        <div class="pitch-box pitch-parag">
+          <div class="pitch-box-title" style="color: var(--emerald);">
+            ✓ Parag's Quiet, Editorial Pitch
+          </div>
+          <div style="font-size: 0.75rem;">
+            "Hi Kyle, I noticed we are both connected to John Connor on LinkedIn, and it prompted me to take a look at Ganni. At Emergentic, we engineer creative automation pipelines that take raw design assets or footage and compile them..."
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;">
+        <label for="sample-text" style="font-size: 0.8125rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+          Paste Writing Sample (Email / DM / Slack Text)
+        </label>
+        <textarea id="sample-text" style="width: 100%; height: 100px; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 0.5rem; padding: 0.75rem; color: var(--text-main); font-size: 0.875rem; font-family: monospace; resize: none; outline: none;" placeholder="Hi Sarah, saw your post about the new exhibition. We built a script that compiles frames..."></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button class="btn btn-primary" onclick="analyzeWritingSample()">
+          Analyze &amp; Calibrate Prompt
+        </button>
+        <span style="font-size: 0.75rem; color: var(--text-dark);">Tested locally under Hermes rules</span>
+      </div>
+
+      <div class="calibration-results" id="calib-results">
+        <!-- Filled Dynamically -->
+      </div>
+    </div>
+
+    <!-- Tab 2: Scoring Heuristics Diagram -->
+    <div class="dialog-content-pane" id="scoring-tab">
+      <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+        The target prioritization algorithm calculates adoption chance using four weighted inputs:
+      </p>
+
+      <div class="diagram-container">
+        <!-- Step 1: Mutuals -->
+        <div class="diag-step">
+          <div class="diag-icon diag-icon-m">M</div>
+          <div class="diag-info">
+            <div class="diag-title-row">
+              <span>Mutual Connections Count</span>
+              <span class="diag-math">Weight: &times; 3.0</span>
+            </div>
+            <div class="diag-desc">Measures warm path availability. Derived from scraped LinkedIn Sales Navigator results.</div>
+          </div>
+        </div>
+
+        <div class="diag-arrow">↓</div>
+
+        <!-- Step 2: Role -->
+        <div class="diag-step">
+          <div class="diag-icon diag-icon-r">R</div>
+          <div class="diag-info">
+            <div class="diag-title-row">
+              <span>Role Alignment Factor</span>
+              <span class="diag-math">Weight: &times; 2.0</span>
+            </div>
+            <div class="diag-desc">Scores title seniority (Creative Director = 4, Head of Production = 5, Founder = 3).</div>
+          </div>
+        </div>
+
+        <div class="diag-arrow">↓</div>
+
+        <!-- Step 3: AI-Alignment -->
+        <div class="diag-step">
+          <div class="diag-icon diag-icon-a">A</div>
+          <div class="diag-info">
+            <div class="diag-title-row">
+              <span>AI &amp; Tech Alignment Affinity</span>
+              <span class="diag-math">Weight: &times; 1.5</span>
+            </div>
+            <div class="diag-desc">Evaluates target's willingness to integrate AI tools (Generative / Experimental = 5, Strict Privacy = 1).</div>
+          </div>
+        </div>
+
+        <div class="diag-arrow">↓</div>
+
+        <!-- Step 4: Scale Need -->
+        <div class="diag-step">
+          <div class="diag-icon diag-icon-b">B</div>
+          <div class="diag-info">
+            <div class="diag-title-row">
+              <span>Publishing Scale Need</span>
+              <span class="diag-math">Weight: &times; 1.0</span>
+            </div>
+            <div class="diag-desc">Scores video/image content publishing volume (Heavy = 5, Light = 1).</div>
+          </div>
+        </div>
+
+        <div class="diag-arrow">↓</div>
+
+        <div class="diag-total">
+          TOTAL RANK SCORE = (M &times; 3.0) + (R &times; 2.0) + (A &times; 1.5) + (B &times; 1.0)
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // Mock leads data with pre-calculated rank weights
+    const leads = [
+      {
+        id: 1,
+        name: "Kyle Reese",
+        title: "Creative Director",
+        company: "Ganni",
+        profileUrl: "https://www.linkedin.com/in/kyle-reese-ganni",
+        mutualConnections: ["John Connor", "Sarah Connor"],
+        status: "Ready",
+        weights: {
+          mutuals: 2,   // 2 * 3.0 = 6.0
+          role: 4,      // CD = 4 * 2.0 = 8.0
+          ai: 3.5,      // Moderate AI = 3.5 * 1.5 = 5.25
+          need: 4       // High content need = 4 * 1.0 = 4.0
+        },
+        draftText: `Hi Kyle,\n\nI noticed we are both connected to John Connor and Sarah Connor on LinkedIn, and it prompted me to take a look at Ganni.\n\nAt Emergentic, we engineer creative automation pipelines that take raw design assets or footage and compile them directly into completed marketing content. I saw you oversee design pipelines at Ganni, and wanted to ask how your team currently handles high-volume content formatting and subtitles.\n\nWe recently automated similar workflows by integrating ExtendScript and custom asset compilers—minimizing manual rendering bottlenecks. \n\nIf you are experiencing any friction scaling your video production, I'd love to share how we set these pipelines up. Let me know if you are open to a brief chat next week.\n\nBest,\n\nParag`
+      },
+      {
+        id: 2,
+        name: "Farah Piriye",
+        title: "Curator & Producer",
+        company: "ZEITGEIST19",
+        profileUrl: "https://www.linkedin.com/in/farah-piriye-coene",
+        mutualConnections: ["Ersin Han Ersin", "Simon Hendry"],
+        status: "Ready",
+        weights: {
+          mutuals: 2,   // 2 * 3.0 = 6.0
+          role: 5,      // Producer = 5 * 2.0 = 10.0
+          ai: 5.0,      // Immersive/AI-aligned = 5 * 1.5 = 7.5
+          need: 3       // Medium need = 3 * 1.0 = 3.0
+        },
+        draftText: `Hi Farah,\n\nI noticed we are both connected to Ersin Han Ersin and Simon Hendry, and it prompted me to reach out directly. I loved seeing the immersive soundscapes you curated for "Seeing Echoes in the Mind of the Whale" at the Venice Biennale.\n\nAt Emergentic, we develop backend media pipelines that automate audio transcription, frame extraction, and ComfyUI/Wan2.2 video generation. \n\nFor spatial or generative art collections, we've built scripts that compile multiple audio feeds and automatically generate dynamic, subtitle-burnt trailers for social media.\n\nIf you have any upcoming immersive exhibitions where automating visual or video assets would help, I'd love to show you how we configure these nodes.\n\nBest,\n\nParag`
+      },
+      {
+        id: 3,
+        name: "Honor Harger",
+        title: "Executive Director",
+        company: "ArtScience Museum",
+        profileUrl: "https://www.linkedin.com/in/honor-harger-asm",
+        mutualConnections: ["Ersin Han Ersin"],
+        status: "Ready",
+        weights: {
+          mutuals: 1,   // 1 * 3.0 = 3.0
+          role: 4.5,    // Exec Dir = 4.5 * 2.0 = 9.0
+          ai: 4.5,      // Very high AI = 4.5 * 1.5 = 6.75
+          need: 3       // Medium need = 3 * 1.0 = 3.0
+        },
+        draftText: `Hi Honor,\n\nI noticed we are both connected to Ersin Han Ersin on LinkedIn. I've been following the ArtScience Museum's residency announcements and their ongoing exploration of hidden systems shaping the natural world.\n\nAt Emergentic, we engineer automation systems that link digital workflows (like automated transcription, ffmpeg video processing, and generative AI APIs) to run under simple agentic control structures.\n\nI wanted to ask if the museum currently utilizes any programmatic pipelines to compile resident digital assets, subtitle logs, or promotional clips.\n\nI'd love to share how we set these pipelines up if you are open to a brief chat next week.\n\nBest,\n\nParag`
+      },
+      {
+        id: 4,
+        name: "Thomas Noya",
+        title: "Digital Artist / Cohort Lead",
+        company: "Social Software",
+        profileUrl: "https://www.linkedin.com/in/thomas-noya-sosoft",
+        mutualConnections: [],
+        status: "Ready",
+        weights: {
+          mutuals: 0,   // 0 * 3.0 = 0.0
+          role: 3,      // Artist/Lead = 3 * 2.0 = 6.0
+          ai: 5.0,      // AI/generative cohort = 5 * 1.5 = 7.5
+          need: 2       // Low need = 2 * 1.0 = 2.0
+        },
+        draftText: `Hi Thomas,\n\nI've been following the performance scores and presentations emerging from the Social Software closing events at Fuser, particularly your Biophonía work.\n\nAt Emergentic, we construct custom media processing engines—automating steps like audio trimming, Whisper transcriptions, and frame extraction into modular, command-line tools.\n\nI saw you are cohort members developing scores for social software, and wanted to see if your team has encountered any bottlenecks compiling and rendering audio-visual assets.\n\nI'd love to share some of our modular CLI scripts if you are open to a quick exchange.\n\nBest,\n\nParag`
+      }
+    ];
+
+    let activeLeadId = null;
+
+    // Calculate Rank Score based on weights
+    const calculateScore = (lead) => {
+      const w = lead.weights;
+      const score = (w.mutuals * 3.0) + (w.role * 2.0) + (w.ai * 1.5) + (w.need * 1.0);
+      return parseFloat(score.toFixed(2));
+    };
+
+    // Sort leads by calculated score descending
+    leads.forEach(l => l.score = calculateScore(l));
+    leads.sort((a, b) => b.score - a.score);
+
+    // Render Leads List in sidebar
+    const renderLeadsList = (filteredLeads = leads) => {
+      const container = document.getElementById('leads-list-container');
+      container.innerHTML = '';
+      
+      document.getElementById('leads-count').innerText = filteredLeads.length;
+
+      filteredLeads.forEach(lead => {
+        // Determine score class
+        let scoreClass = 'score-low';
+        if (lead.score >= 18) scoreClass = 'score-high';
+        else if (lead.score >= 12) scoreClass = 'score-med';
+
+        // Status indicator class
+        let statusHtml = '';
+        if (lead.status === 'Sent') {
+          statusHtml = `<span class="status-dot status-sent"></span>Sent`;
+        } else if (lead.status === 'Edited') {
+          statusHtml = `<span class="status-dot status-edited"></span>Edited`;
+        } else {
+          statusHtml = `<span class="status-dot status-ready"></span>Ready`;
+        }
+
+        const card = document.createElement('div');
+        card.className = `lead-card ${activeLeadId === lead.id ? 'active' : ''}`;
+        card.onclick = () => selectLead(lead.id);
+
+        card.innerHTML = `
+          <div class="lead-card-header">
+            <div>
+              <div class="lead-name">${lead.name}</div>
+              <div class="lead-company">${lead.company} &bull; ${lead.title}</div>
+            </div>
+            <span class="score-badge ${scoreClass}">${lead.score}</span>
+          </div>
+          <div class="lead-card-meta">
+            <span class="mutual-connections-tag">
+              👥 ${lead.mutualConnections.length} mutuals
+            </span>
+            <span>${statusHtml}</span>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    };
+
+    // Search and filter leads
+    const filterLeads = () => {
+      const q = document.getElementById('lead-search').value.toLowerCase();
+      const filtered = leads.filter(l => 
+        l.name.toLowerCase().includes(q) || 
+        l.company.toLowerCase().includes(q) ||
+        l.title.toLowerCase().includes(q)
+      );
+      renderLeadsList(filtered);
+    };
+
+    // Select lead and open in Editor
+    const selectLead = (id) => {
+      activeLeadId = id;
+      
+      // Update sidebar active highlights
+      renderLeadsList();
+
+      const lead = leads.find(l => l.id === id);
+      if (!lead) return;
+
+      // Swap view panes
+      document.getElementById('editor-pane-empty').style.display = 'none';
+      document.getElementById('editor-pane-active').style.display = 'flex';
+
+      // Populate details
+      document.getElementById('active-fullname').innerText = lead.name;
+      document.getElementById('active-role').innerText = lead.title;
+      document.getElementById('active-company').innerText = lead.company;
+      document.getElementById('active-textarea').value = lead.draftText;
+      
+      // Links
+      document.getElementById('active-linkedin-btn').href = lead.profileUrl;
+      document.getElementById('active-context-url').href = lead.profileUrl;
+      document.getElementById('active-context-url').innerText = lead.profileUrl;
+
+      // Score badges
+      const rankBadge = document.getElementById('active-rank-badge');
+      rankBadge.innerText = lead.score;
+      rankBadge.className = 'score-badge';
+      if (lead.score >= 18) rankBadge.classList.add('score-high');
+      else if (lead.score >= 12) rankBadge.classList.add('score-med');
+      else rankBadge.classList.add('score-low');
+
+      // Weights breakdown
+      document.getElementById('w-mutuals').innerText = (lead.weights.mutuals * 3.0).toFixed(1);
+      document.getElementById('w-role').innerText = (lead.weights.role * 2.0).toFixed(1);
+      document.getElementById('w-ai').innerText = (lead.weights.ai * 1.5).toFixed(1);
+      document.getElementById('w-need').innerText = (lead.weights.need * 1.0).toFixed(1);
+
+      // Mutuals tags
+      const mutualsContainer = document.getElementById('active-mutual-list');
+      mutualsContainer.innerHTML = '';
+      if (lead.mutualConnections.length === 0) {
+        mutualsContainer.innerHTML = '<span style="color: var(--text-muted); font-style: italic;">No mutual connections found.</span>';
+      } else {
+        lead.mutualConnections.forEach(m => {
+          const tag = document.createElement('span');
+          tag.className = 'mutual-user-tag';
+          tag.innerText = m;
+          mutualsContainer.appendChild(tag);
+        });
+      }
+    };
+
+    // Update active draft text
+    const updateActiveDraftText = () => {
+      const lead = leads.find(l => l.id === activeLeadId);
+      if (lead) {
+        lead.draftText = document.getElementById('active-textarea').value;
+        if (lead.status === 'Ready') {
+          lead.status = 'Edited';
+          renderLeadsList();
+        }
+      }
+    };
+
+    // Set lead status manually
+    const setStatus = (status) => {
+      const lead = leads.find(l => l.id === activeLeadId);
+      if (lead) {
+        lead.status = status;
+        renderLeadsList();
+        selectLead(activeLeadId); // Refresh details
+      }
+    };
+
+    // Copy draft text to clipboard
+    const copyActiveDraft = () => {
+      const text = document.getElementById('active-textarea').value;
+      navigator.clipboard.writeText(text).then(() => {
+        // Show toast
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+
+        // Update status to Sent automatically
+        setStatus('Sent');
+      }).catch(err => {
+        alert('Failed to copy text: ' + err);
+      });
+    };
+
+    // Dialog control logic
+    const openCalibrationDialog = () => {
+      const dialog = document.getElementById('calib-dialog');
+      if (dialog) dialog.showModal();
+    };
+
+    const closeCalibrationDialog = () => {
+      const dialog = document.getElementById('calib-dialog');
+      if (dialog) dialog.close();
+    };
+
+    const switchDialogTab = (tabId) => {
+      // Toggle active states of buttons
+      document.getElementById('btn-voice-tab').classList.toggle('active', tabId === 'voice-tab');
+      document.getElementById('btn-scoring-tab').classList.toggle('active', tabId === 'scoring-tab');
+      
+      // Toggle active states of content panes
+      document.getElementById('voice-tab').classList.toggle('active', tabId === 'voice-tab');
+      document.getElementById('scoring-tab').classList.toggle('active', tabId === 'scoring-tab');
+    };
+
+    // Rule-based client-side sample analyzer for Parag's Voice
+    const analyzeWritingSample = () => {
+      const text = document.getElementById('sample-text').value.trim();
+      const resultsDiv = document.getElementById('calib-results');
+      
+      if (!text) {
+        resultsDiv.style.display = 'block';
+        resultsDiv.innerHTML = '<span style="color: var(--rose);">Please enter a writing sample to analyze.</span>';
+        return;
+      }
+
+      // Check for sales-y buzzwords
+      const bannedBuzzwords = ['revolutionary', 'game-changing', 'supercharge', 'delve', 'leverage', 'exciting', 'excited', 'maximize', 'solutions'];
+      const textLower = text.toLowerCase();
+      const detectedBuzzwords = bannedBuzzwords.filter(word => textLower.includes(word));
+      
+      // Count exclamations
+      const exclamationsCount = (text.match(/!/g) || []).length;
+      
+      // Count average sentence length
+      const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+      const sentenceCount = sentences.length;
+      const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
+      const avgSentenceLength = sentenceCount > 0 ? Math.round(wordCount / sentenceCount) : 0;
+      
+      // Calculate a voice match percentage
+      let score = 100;
+      
+      // Deduct for buzzwords
+      score -= (detectedBuzzwords.length * 15);
+      // Deduct for exclamations
+      score -= (exclamationsCount * 10);
+      // Deduct for long sentences (Parag prefers 8-15 words average)
+      if (avgSentenceLength > 18) {
+        score -= 15;
+      } else if (avgSentenceLength < 6) {
+        score -= 10;
+      }
+      
+      score = Math.max(10, Math.min(100, score));
+      
+      let badgeClass = 'score-low';
+      let message = '';
+      
+      if (score >= 85) {
+        badgeClass = 'score-high';
+        message = '✔ <strong>Excellent Voice Fit.</strong> The text matches Parag\'s quiet, editorial style: simple phrasing, concrete tech references, and zero hype. System prompt calibrator loaded.';
+      } else if (score >= 60) {
+        badgeClass = 'score-med';
+        message = '⚠ <strong>Moderate Voice Fit.</strong> Decent phrasing, but contains minor buzzwords or exclamations that feel slightly marketing-heavy. Recommended to rewrite.';
+      } else {
+        badgeClass = 'score-low';
+        message = '❌ <strong>Poor Voice Fit.</strong> High sales-hype detected. Tone feels artificial. Avoid exclamations and generic corporate adjectives to fit Parag\'s brand.';
+      }
+
+      resultsDiv.style.display = 'block';
+      resultsDiv.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px dashed rgba(56, 189, 248, 0.2); padding-bottom: 0.5rem;">
+          <strong style="color: var(--sky);">Calibration Summary:</strong>
+          <span class="score-badge ${badgeClass}">${score}% Match</span>
+        </div>
+        <div style="font-size: 0.8125rem; line-height: 1.5; color: var(--text-main);">
+          <p style="margin-bottom: 0.5rem;">${message}</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 0.5rem; border-radius: 0.25rem;">
+            <span>Detected Jargon: <strong>${detectedBuzzwords.length > 0 ? detectedBuzzwords.join(', ') : 'None'}</strong></span>
+            <span>Exclamations (!): <strong>${exclamationsCount}</strong></span>
+            <span>Avg Sentence Length: <strong>${avgSentenceLength} words</strong></span>
+            <span>Sentence Count: <strong>${sentenceCount}</strong></span>
+          </div>
+        </div>
+      `;
+    };
+
+    // Initial render
+    window.onload = () => {
+      renderLeadsList();
+    };
+  </script>
+</body>
+</html>

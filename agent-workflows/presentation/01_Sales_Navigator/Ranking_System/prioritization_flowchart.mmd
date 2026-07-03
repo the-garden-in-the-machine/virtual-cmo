@@ -1,0 +1,33 @@
+graph TD
+    classDef weightNode fill:#121826,stroke:#38bdf8,stroke-width:2px,color:#f1f5f9;
+    classDef calcNode fill:#0b0f19,stroke:#a78bfa,stroke-width:2px,color:#f1f5f9;
+    classDef inputNode fill:#05070c,stroke:#475569,stroke-width:1px,color:#94a3b8;
+    
+    subgraph Inputs ["Scraped Prospect Parameters (Base Value 0 to 5)"]
+        M_in["Mutual Contacts Count (M)"]:::inputNode
+        R_in["Title Seniority Rating (R)<br/>(e.g., Head of Prod = 5, CD = 4, Founder = 3)"]:::inputNode
+        A_in["Platform AI-Alignment (A)<br/>(Generative/Experimental = 5, Strict Privacy = 1)"]:::inputNode
+        B_in["Content Scale Need (B)<br/>(High Volume = 5, Light Volume = 1)"]:::inputNode
+    end
+    
+    subgraph Multipliers ["Weight Multipliers (Priority scaling)"]
+        M_wt["Weight: 3.0"]:::weightNode
+        R_wt["Weight: 2.0"]:::weightNode
+        A_wt["Weight: 1.5"]:::weightNode
+        B_wt["Weight: 1.0"]:::weightNode
+    end
+
+    M_in -->|Value 0-5| M_wt
+    R_in -->|Value 0-5| R_wt
+    A_in -->|Value 0-5| A_wt
+    B_in -->|Value 0-5| B_wt
+
+    M_wt -->|M * 3.0| Sum["Score Summer"]:::calcNode
+    R_wt -->|R * 2.0| Sum
+    A_wt -->|A * 1.5| Sum
+    B_wt -->|B * 1.0| Sum
+
+    Sum -->|Weighted Sum| Score["Final Rank Score<br/>(Range: 0.0 - 37.5)"]:::calcNode
+    
+    style Inputs fill:none,stroke:#334155,stroke-dasharray: 5 5;
+    style Multipliers fill:none,stroke:#334155,stroke-dasharray: 5 5;

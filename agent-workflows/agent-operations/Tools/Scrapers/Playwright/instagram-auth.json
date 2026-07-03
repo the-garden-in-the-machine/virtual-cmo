@@ -1,0 +1,184 @@
+{
+  "cookies": [
+    {
+      "name": "datr",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1815544684.428426,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ig_did",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1812520684.428437,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "mid",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1815544684.428444,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "wd",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1781590220,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "dpr",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1781590220,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "csrftoken",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1815545426.613294,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ds_user_id",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1788761426.613494,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "sessionid",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1812521415.162088,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ps_l",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1815545415.653648,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ps_n",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1815545415.653679,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "fr",
+      "value": "REDACTED",
+      "domain": ".facebook.com",
+      "path": "/",
+      "expires": 1788761424.118898,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "rur",
+      "value": "REDACTED",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.instagram.com",
+      "localStorage": [
+        {
+          "name": "ig_notifications_sessions_dismiss",
+          "value": "REDACTED"
+        },
+        {
+          "name": "chatd-deviceid",
+          "value": "REDACTED"
+        },
+        {
+          "name": "hb_timestamp",
+          "value": "REDACTED"
+        },
+        {
+          "name": "IGSession",
+          "value": "REDACTED"
+        },
+        {
+          "name": "pigeon_state",
+          "value": "REDACTED"
+        },
+        {
+          "name": "fr",
+          "value": "REDACTED"
+        },
+        {
+          "name": "pixel_fire_ts",
+          "value": "REDACTED"
+        },
+        {
+          "name": "signal_flush_timestamp",
+          "value": "REDACTED"
+        },
+        {
+          "name": "Session",
+          "value": "REDACTED"
+        },
+        {
+          "name": "banzai:last_storage_flush",
+          "value": "REDACTED"
+        },
+        {
+          "name": "caa_feta_onetap_users_migrated",
+          "value": "REDACTED"
+        }
+      ]
+    },
+    {
+      "origin": "https://www.facebook.com",
+      "localStorage": [
+        {
+          "name": "Session",
+          "value": "REDACTED"
+        }
+      ]
+    }
+  ]
+}

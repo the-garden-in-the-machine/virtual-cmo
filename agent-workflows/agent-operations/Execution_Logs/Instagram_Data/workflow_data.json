@@ -1,0 +1,55 @@
+{
+  "id": 6187,
+  "name": "Instagram full profile scraper with Apify and Google Sheets",
+  "recentViews": 0,
+  "views": 4508,
+  "description": "",
+  "price": null,
+  "purchaseUrl": null,
+  "updatedAt": "2026-02-25T23:55:43.261Z",
+  "createdAt": "2025-07-19T22:39:51.428Z",
+  "categories": [
+    {
+      "id": 32,
+      "name": "Market Research"
+    }
+  ],
+  "user": {
+    "username": "mohamedgb00714",
+    "name": "Msaid Mohamed el hadi",
+    "verified": true,
+    "avatar": "https://gravatar.com/avatar/c4b0cbae8f6f7927d45ec41864a98d92f1792bd647d0b784d7e33a48542f774f?r=pg&d=retro&size=200",
+    "url": "/creators/mohamedgb00714/"
+  },
+  "nodes": [
+    {
+      "id": 18,
+      "url": "/integrations/google-sheets/"
+    },
+    {
+      "id": 19,
+      "url": "/integrations/http-request/"
+    },
+    {
+      "id": 565,
+      "url": "/integrations/sticky-note/"
+    },
+    {
+      "id": 839,
+      "url": "/integrations/schedule-trigger/"
+    },
+    {
+      "id": 1236,
+      "url": "/integrations/aggregate/"
+    },
+    {
+      "id": 1237,
+      "url": "/integrations/limit/"
+    }
+  ],
+  "image": [],
+  "communityNodes": [],
+  "slug": "6187-instagram-full-profile-scraper-with-apify-and-google-sheets",
+  "url": "/workflows/6187-instagram-full-profile-scraper-with-apify-and-google-sheets/",
+  "nonNativeNodes": []
+}
