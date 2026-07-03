@@ -1,0 +1,25 @@
+{
+  "name": "client-search-hermes",
+  "version": "1.0.0",
+  "description": "Hermes-integrated Client Discovery and Outreach Pipeline",
+  "main": "orchestrator.js",
+  "scripts": {
+    "start": "node orchestrator.js",
+    "search": "node sales_nav_adapter.js"
+  },
+  "keywords": [
+    "agentic",
+    "scraper",
+    "linkedin",
+    "sales-navigator"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.4.2",
+    "playwright": "^1.60.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
